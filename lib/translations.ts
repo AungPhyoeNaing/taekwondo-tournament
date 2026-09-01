@@ -46,6 +46,12 @@ export interface Translations {
   weightRange: string;
   minKg: string;
   maxKg: string;
+  saveSetting: string;
+  settingSaved: string;
+  typeAgeDivision: string;
+  weightRangeSlider: string;
+  anyWeight: string;
+  weightPresets: string;
   sortBy: string;
   newestFirst: string;
   nameAZ: string;
@@ -169,6 +175,12 @@ export const translations: Record<Language, Translations> = {
     weightRange: 'Weight Range (Kg)',
     minKg: 'Min kg',
     maxKg: 'Max kg',
+    saveSetting: 'Save Setting',
+    settingSaved: 'Saved!',
+    typeAgeDivision: 'Type Age Division (e.g. Cadet, 12-14, 18+)...',
+    weightRangeSlider: 'Weight Range Slider (Kg)',
+    anyWeight: 'Any Weight',
+    weightPresets: 'Weight Presets',
     sortBy: 'Sort By',
     newestFirst: 'Newest First',
     nameAZ: 'Name (A-Z)',
@@ -285,6 +297,12 @@ export const translations: Record<Language, Translations> = {
     weightRange: 'ဝိတ် အတိုင်းအတာ (ကီလို)',
     minKg: 'အနည်းဆုံး (ကီလို)',
     maxKg: 'အများဆုံး (ကီလို)',
+    saveSetting: 'ဆက်တင် သိမ်းဆည်းမည်',
+    settingSaved: 'သိမ်းဆည်းပြီး!',
+    typeAgeDivision: 'အသက်အရွယ် အတန်းအစား ရိုက်ထည့်ပါ (ဥပမာ - Cadet, 12-14, 18+)...',
+    weightRangeSlider: 'ဝိတ် အတိုင်းအတာ စလိုက်ဒါ (ကီလို)',
+    anyWeight: 'ဝိတ် အားလုံး',
+    weightPresets: 'အမြန်ရွေးရန် ဝိတ်တန်းများ',
     sortBy: 'စီစဉ်ရန်',
     newestFirst: 'နောက်ဆုံးသွင်းထားသော',
     nameAZ: 'အမည် (က မှ အ)',

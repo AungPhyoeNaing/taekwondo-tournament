@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase, checkSupabaseHealth, SupabaseHealthStatus } from '@/lib/supabase';
 import { Player, PlayerFilters, PlayerFormData } from '@/types/player';
-import { DEMO_PLAYERS, calculateAge, getTaekwondoDivision, getAgeCategory } from '@/lib/taekwondo';
+import { DEMO_PLAYERS, calculateAge, getTaekwondoDivision, matchAgeDivision } from '@/lib/taekwondo';
 import { Language, translations } from '@/lib/translations';
 import { Navbar } from '@/components/Navbar';
 import { SearchFilterBar } from '@/components/SearchFilterBar';
@@ -71,6 +71,11 @@ export default function Home() {
     const savedLang = localStorage.getItem('tkd_lang') as Language | null;
     if (savedLang) {
       setLang(savedLang);
+    }
+
+    const savedAgeDivision = localStorage.getItem('tkd_saved_age_division');
+    if (savedAgeDivision) {
+      setFilters((prev) => ({ ...prev, ageCategory: savedAgeDivision }));
     }
   }, []);
 
@@ -428,13 +433,9 @@ export default function Home() {
           return false;
         }
 
-        // Age Category
-        if (filters.ageCategory) {
-          const age = calculateAge(player.date_of_birth);
-          const cat = getAgeCategory(age);
-          if (cat.toLowerCase() !== filters.ageCategory.toLowerCase()) {
-            return false;
-          }
+        // Age Category / Division (supports manually typed e.g. "Cadet", "12-14", "18+", "Under 12", etc.)
+        if (filters.ageCategory && !matchAgeDivision(filters.ageCategory, player.date_of_birth)) {
+          return false;
         }
 
         // Weight Min

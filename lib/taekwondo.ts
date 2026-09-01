@@ -279,3 +279,58 @@ export const DEMO_PLAYERS: Player[] = [
     created_at: '2026-08-28T11:45:00Z'
   }
 ];
+
+export function matchAgeDivision(typedCategory: string, dateOfBirth: string): boolean {
+  if (!typedCategory || !typedCategory.trim()) return true;
+  const raw = typedCategory.trim();
+  const cleaned = raw.toLowerCase();
+  const age = calculateAge(dateOfBirth);
+  const cat = getAgeCategory(age).toLowerCase();
+
+  // Burmese age category keywords
+  if (cleaned.includes('ကလေး') && cat === 'child') return true;
+  if (cleaned.includes('ကာဒက်') && cat === 'cadet') return true;
+  if (cleaned.includes('လူငယ်') && cat === 'junior') return true;
+  if (cleaned.includes('လူကြီး') && cat === 'senior') return true;
+  if (cleaned.includes('ဝါရင့်') && cat === 'ultra') return true;
+
+  // Direct category string matching (e.g. "cadet", "junior", "senior", "child", "ultra")
+  if (cat.includes(cleaned) || cleaned.includes(cat)) {
+    return true;
+  }
+
+  // Normalize Burmese digits (၀-၉) to 0-9
+  const normalizedNumbers = cleaned.replace(/[၀-၉]/g, (d) =>
+    (d.charCodeAt(0) - 0x1040).toString()
+  );
+
+  // Check if user entered range e.g. "12-14" or "12 - 14" or "12 to 14"
+  const rangeMatch = normalizedNumbers.match(/^(\d{1,2})\s*[-–—to]+\s*(\d{1,2})$/);
+  if (rangeMatch) {
+    const minAge = parseInt(rangeMatch[1], 10);
+    const maxAge = parseInt(rangeMatch[2], 10);
+    return age >= minAge && age <= maxAge;
+  }
+
+  // Check if user entered "< 12" or "u12" or "under 12" or "u-12"
+  const underMatch = normalizedNumbers.match(/^(?:<|<=|u-?|under)\s*(\d{1,2})$/);
+  if (underMatch) {
+    const maxAge = parseInt(underMatch[1], 10);
+    return age <= maxAge;
+  }
+
+  // Check if user entered "> 18" or "18+"
+  const overMatch = normalizedNumbers.match(/^(?:>|>=)\s*(\d{1,2})$/) || normalizedNumbers.match(/^(\d{1,2})\s*\+$/);
+  if (overMatch) {
+    const minAge = parseInt(overMatch[1], 10);
+    return age >= minAge;
+  }
+
+  // Check if user entered a single number (exact age)
+  const singleAge = parseInt(normalizedNumbers, 10);
+  if (!isNaN(singleAge) && singleAge.toString() === normalizedNumbers) {
+    return age === singleAge;
+  }
+
+  return false;
+}
