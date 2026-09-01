@@ -13,8 +13,9 @@ import { PlayerModal } from '@/components/PlayerModal';
 import { PlayerIdCardModal } from '@/components/PlayerIdCardModal';
 import { DatabaseSetupModal } from '@/components/DatabaseSetupBanner';
 import { TournamentStats } from '@/components/TournamentStats';
+import { TournamentBracket } from '@/components/TournamentBracket';
 import confetti from 'canvas-confetti';
-import { AlertCircle, CheckCircle2, UserPlus, Database, SearchX, Sparkles } from 'lucide-react';
+import { AlertCircle, CheckCircle2, UserPlus, Database, SearchX, Sparkles, Swords } from 'lucide-react';
 
 export default function Home() {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -33,6 +34,7 @@ export default function Home() {
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [idCardPlayer, setIdCardPlayer] = useState<Player | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [activeTab, setActiveTab] = useState<'roster' | 'bracket'>('roster');
 
   // Notification Toast state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -513,6 +515,8 @@ export default function Home() {
         lang={lang}
         onToggleLanguage={handleToggleLanguage}
         t={t}
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
       />
 
       {/* Supabase Notice Banner if table is not yet created */}
@@ -562,6 +566,14 @@ export default function Home() {
               </button>
 
               <button
+                onClick={() => setActiveTab('bracket')}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 text-sm font-bold transition-all shadow-sm"
+              >
+                <Swords className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                {t.bracketNav}
+              </button>
+
+              <button
                 onClick={handleExportCsv}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold transition-colors shadow-sm"
               >
@@ -574,90 +586,119 @@ export default function Home() {
           <div className="absolute -right-10 -bottom-10 w-80 h-80 bg-red-500/10 dark:bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
         </div>
 
-        {/* Tournament Metrics Overview */}
-        <TournamentStats players={players} onAddSampleData={handleLoadDemoData} t={t} />
+        {activeTab === 'bracket' ? (
+          /* Tournament Bracket View */
+          <TournamentBracket
+            players={players}
+            lang={lang}
+            t={t}
+            onOpenAddModal={() => {
+              setEditingPlayer(null);
+              setIsAddModalOpen(true);
+            }}
+          />
+        ) : (
+          /* Athlete Roster View */
+          <>
+            {/* Tournament Metrics Overview */}
+            <TournamentStats players={players} onAddSampleData={handleLoadDemoData} t={t} />
 
-        {/* Search & Multi-Filter Engine */}
-        <SearchFilterBar
-          filters={filters}
-          onChangeFilters={setFilters}
-          availableClubs={availableClubs}
-          totalFiltered={filteredPlayers.length}
-          totalAll={players.length}
-          viewMode={viewMode}
-          onChangeViewMode={setViewMode}
-          t={t}
-          lang={lang}
-        />
+            {/* Search & Multi-Filter Engine */}
+            <SearchFilterBar
+              filters={filters}
+              onChangeFilters={setFilters}
+              availableClubs={availableClubs}
+              totalFiltered={filteredPlayers.length}
+              totalAll={players.length}
+              viewMode={viewMode}
+              onChangeViewMode={setViewMode}
+              t={t}
+              lang={lang}
+            />
 
-        {/* Athletes List / Content Area */}
-        {loading ? (
-          <div className="py-20 flex flex-col items-center justify-center gap-3 text-slate-500 dark:text-slate-400">
-            <div className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm font-medium">Connecting to tournament database...</p>
-          </div>
-        ) : filteredPlayers.length === 0 ? (
-          /* Empty Search Results */
-          <div className="py-16 text-center rounded-3xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 p-8 space-y-4 shadow-sm">
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-              <SearchX className="w-8 h-8" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t.noAthletesFound}</h3>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-                {players.length === 0
-                  ? t.noAthletesDescEmpty
-                  : t.noAthletesDescFilter}
-              </p>
-            </div>
-            <div className="flex items-center justify-center gap-3 pt-2">
-              {players.length === 0 ? (
-                <>
-                  <button
-                    onClick={() => {
-                      setEditingPlayer(null);
+            {/* Athletes List / Content Area */}
+            {loading ? (
+              <div className="py-20 flex flex-col items-center justify-center gap-3 text-slate-500 dark:text-slate-400">
+                <div className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm font-medium">Connecting to tournament database...</p>
+              </div>
+            ) : filteredPlayers.length === 0 ? (
+              /* Empty Search Results */
+              <div className="py-16 text-center rounded-3xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 p-8 space-y-4 shadow-sm">
+                <div className="mx-auto w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                  <SearchX className="w-8 h-8" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t.noAthletesFound}</h3>
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+                    {players.length === 0
+                      ? t.noAthletesDescEmpty
+                      : t.noAthletesDescFilter}
+                  </p>
+                </div>
+                <div className="flex items-center justify-center gap-3 pt-2">
+                  {players.length === 0 ? (
+                    <>
+                      <button
+                        onClick={() => {
+                          setEditingPlayer(null);
+                          setIsAddModalOpen(true);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-all shadow-sm"
+                      >
+                        <UserPlus className="w-4 h-4" /> {t.registerFirstFighter}
+                      </button>
+                      <button
+                        onClick={handleLoadDemoData}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all"
+                      >
+                        <Sparkles className="w-4 h-4 text-amber-500" /> {t.loadDemoRoster}
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() =>
+                        setFilters({
+                          query: '',
+                          gender: '',
+                          belt: '',
+                          club: '',
+                          ageCategory: '',
+                          minWeight: '',
+                          maxWeight: '',
+                          sortBy: 'created_at',
+                          sortOrder: 'desc'
+                        })
+                      }
+                      className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all"
+                    >
+                      {t.clearFilters}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : viewMode === 'grid' ? (
+              /* Grid View of Athletes */
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                {filteredPlayers.map((player) => (
+                  <PlayerCard
+                    key={player.id}
+                    player={player}
+                    onViewId={(p) => setIdCardPlayer(p)}
+                    onEdit={(p) => {
+                      setEditingPlayer(p);
                       setIsAddModalOpen(true);
                     }}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-all shadow-sm"
-                  >
-                    <UserPlus className="w-4 h-4" /> {t.registerFirstFighter}
-                  </button>
-                  <button
-                    onClick={handleLoadDemoData}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all"
-                  >
-                    <Sparkles className="w-4 h-4 text-amber-500" /> {t.loadDemoRoster}
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() =>
-                    setFilters({
-                      query: '',
-                      gender: '',
-                      belt: '',
-                      club: '',
-                      ageCategory: '',
-                      minWeight: '',
-                      maxWeight: '',
-                      sortBy: 'created_at',
-                      sortOrder: 'desc'
-                    })
-                  }
-                  className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all"
-                >
-                  {t.clearFilters}
-                </button>
-              )}
-            </div>
-          </div>
-        ) : viewMode === 'grid' ? (
-          /* Grid View of Athletes */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {filteredPlayers.map((player) => (
-              <PlayerCard
-                key={player.id}
-                player={player}
+                    onDelete={handleDeletePlayer}
+                    t={t}
+                    lang={lang}
+                  />
+                ))}
+              </div>
+            ) : (
+              /* Official Table View of Athletes */
+              <PlayerTable
+                players={filteredPlayers}
                 onViewId={(p) => setIdCardPlayer(p)}
                 onEdit={(p) => {
                   setEditingPlayer(p);
@@ -667,21 +708,8 @@ export default function Home() {
                 t={t}
                 lang={lang}
               />
-            ))}
-          </div>
-        ) : (
-          /* Official Table View of Athletes */
-          <PlayerTable
-            players={filteredPlayers}
-            onViewId={(p) => setIdCardPlayer(p)}
-            onEdit={(p) => {
-              setEditingPlayer(p);
-              setIsAddModalOpen(true);
-            }}
-            onDelete={handleDeletePlayer}
-            t={t}
-            lang={lang}
-          />
+            )}
+          </>
         )}
       </main>
 

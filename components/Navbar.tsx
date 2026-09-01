@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Shield, UserPlus, Database, Trophy, FileSpreadsheet, RefreshCw, Sun, Moon } from 'lucide-react';
+import { Shield, UserPlus, Database, Trophy, FileSpreadsheet, RefreshCw, Sun, Moon, Users, Swords, FileText } from 'lucide-react';
 import { SupabaseHealthStatus } from '@/lib/supabase';
 import { Language, Translations } from '@/lib/translations';
+import Link from 'next/link';
 
 interface NavbarProps {
   onOpenAddModal: () => void;
@@ -18,6 +19,8 @@ interface NavbarProps {
   lang: Language;
   onToggleLanguage: (l: Language) => void;
   t: Translations;
+  activeTab: 'roster' | 'bracket';
+  onSelectTab: (tab: 'roster' | 'bracket') => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -32,12 +35,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleTheme,
   lang,
   onToggleLanguage,
-  t
+  t,
+  activeTab,
+  onSelectTab
 }) => {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/85 dark:bg-slate-950/80 backdrop-blur-md transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-20 gap-2">
           {/* Brand Logo & Name */}
           <div className="flex items-center gap-3">
             <div className="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-red-600 via-rose-600 to-amber-500 shadow-md shadow-red-500/20 text-white font-black text-xl flex-shrink-0">
@@ -60,6 +65,39 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {t.brandSub} • <span className="text-slate-700 dark:text-slate-200 font-bold">{totalPlayers}</span> {t.fightersListed}
               </p>
             </div>
+          </div>
+
+          {/* Center Navigation Tabs */}
+          <div className="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-1 text-xs font-bold shadow-inner">
+            <button
+              onClick={() => onSelectTab('roster')}
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl transition-all ${
+                activeTab === 'roster'
+                  ? 'bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 shadow-sm font-black'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span className="hidden sm:inline">{t.rosterNav}</span>
+            </button>
+            <button
+              onClick={() => onSelectTab('bracket')}
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl transition-all ${
+                activeTab === 'bracket'
+                  ? 'bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 shadow-sm font-black'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Swords className="w-4 h-4" />
+              <span className="hidden sm:inline">{t.bracketNav}</span>
+            </button>
+            <Link
+              href="/results"
+              className="flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            >
+              <FileText className="w-4 h-4 text-amber-500" />
+              <span className="hidden sm:inline">{t.resultsNav}</span>
+            </Link>
           </div>
 
           {/* Action buttons, Language Switcher & Theme Switcher */}

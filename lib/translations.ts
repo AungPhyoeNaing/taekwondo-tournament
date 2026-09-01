@@ -128,6 +128,57 @@ export interface Translations {
   // Footer
   footerText: string;
   sqlInstructions: string;
+
+  // Bracket & Pairing System
+  bracketNav: string;
+  rosterNav: string;
+  bracketTitle: string;
+  bracketSubtitle: string;
+  singleEliminationWithByes: string;
+  selectDivision: string;
+  allAthletes: string;
+  selectedAthletesCount: (count: number, byes: number) => string;
+  drawMode: string;
+  drawRandom: string;
+  drawSeeded: string;
+  drawClubSeparated: string;
+  generateDraw: string;
+  reShuffle: string;
+  resetBracket: string;
+  printBracket: string;
+  bye: string;
+  byeAdvanced: string;
+  hongCorner: string;
+  chongCorner: string;
+  selectWinner: string;
+  winner: string;
+  champion: string;
+  runnerUp: string;
+  bronze: string;
+  notEnoughAthletes: string;
+  bracketGeneratedToast: string;
+  autoAdvanceNotice: string;
+  enterMatchScore: string;
+  openBracketBtn: string;
+
+  // Results Page
+  resultsNav: string;
+  resultsTitle: string;
+  resultsSubtitle: string;
+  exportResultsCsv: string;
+  printResults: string;
+  matchStatus: string;
+  scheduled: string;
+  completed: string;
+  noResultsYet: string;
+  noResultsDesc: string;
+  backToBracket: string;
+  viewResultsBtn: string;
+  bout: string;
+  divisionFilter: string;
+  pairingType: string;
+  regularMatch: string;
+  byeMatch: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -251,7 +302,58 @@ export const translations: Record<Language, Translations> = {
     useDemoLocally: 'Use Demo Athletes Locally',
     
     footerText: 'Taekwondo Tournament Athlete Registry & Weigh-In Database • Hosted on Vercel',
-    sqlInstructions: 'SQL Database Instructions'
+    sqlInstructions: 'SQL Database Instructions',
+
+    // Bracket & Pairing System
+    bracketNav: 'Bracket & Pairing',
+    rosterNav: 'Athletes Roster',
+    bracketTitle: 'Tournament Pairing & Single Elimination Bracket',
+    bracketSubtitle: 'World Taekwondo elimination tree with automatic Bye calculations, interactive winner selection, and podium generation.',
+    singleEliminationWithByes: 'Single Elimination with Byes',
+    selectDivision: 'Select Division / Category',
+    allAthletes: 'All Eligible Athletes',
+    selectedAthletesCount: (count, byes) => `${count} competitors selected • ${byes} ${byes === 1 ? 'Bye' : 'Byes'} assigned to balance bracket`,
+    drawMode: 'Draw & Seeding Method',
+    drawRandom: 'Random Draw (Lottery)',
+    drawSeeded: 'Seeded Draw (Belt / Dan)',
+    drawClubSeparated: 'Club Protection (Avoid Teammates)',
+    generateDraw: 'Generate Bracket',
+    reShuffle: 'Shuffle Draw',
+    resetBracket: 'Reset Matches',
+    printBracket: 'Print Draw Sheet',
+    bye: 'BYE',
+    byeAdvanced: 'Advanced on BYE (Auto-Pass)',
+    hongCorner: 'HONG (Red)',
+    chongCorner: 'CHONG (Blue)',
+    selectWinner: 'Pick Winner',
+    winner: 'WINNER',
+    champion: 'Tournament Champion',
+    runnerUp: 'Silver Medalist (2nd)',
+    bronze: 'Bronze Medalists (Joint 3rd)',
+    notEnoughAthletes: 'At least 2 competitors are required to generate a tournament bracket.',
+    bracketGeneratedToast: 'Tournament bracket generated successfully!',
+    autoAdvanceNotice: 'Fighters with a BYE automatically advance directly to Round 2.',
+    enterMatchScore: 'Match score (optional)',
+    openBracketBtn: 'Bracket / Draw',
+
+    // Results Page (Initial Pairing Table)
+    resultsNav: 'Initial Pairing Table',
+    resultsTitle: 'Initial Pairing Table (Round 1 Draw)',
+    resultsSubtitle: 'Official Round 1 draw sheet showing initial fighter pairings and Byes distribution.',
+    exportResultsCsv: 'Export Initial Draw (CSV)',
+    printResults: 'Print Initial Draw Sheet',
+    matchStatus: 'Pairing Status',
+    scheduled: 'Round 1 Bout',
+    completed: 'Round 1 Bout',
+    noResultsYet: 'No Initial Pairings Yet',
+    noResultsDesc: 'Generate a tournament bracket in the Bracket & Pairing section first to view the initial pairings.',
+    backToBracket: 'Go to Bracket Draw',
+    viewResultsBtn: 'View Initial Pairing Table',
+    bout: 'Bout',
+    divisionFilter: 'Filter by Division',
+    pairingType: 'Pairing Status',
+    regularMatch: 'Round 1 Bout',
+    byeMatch: 'BYE (Auto-Advance to R2)'
   },
   my: {
     brand: 'တိုက်ကွမ်ဒို ပြိုင်ပွဲ',
@@ -373,6 +475,57 @@ export const translations: Record<Language, Translations> = {
     useDemoLocally: 'နမူနာ ကစားသမားများ ထည့်မည်',
     
     footerText: 'တိုက်ကွမ်ဒို ပြိုင်ပွဲ ကစားသမားမှတ်ပုံတင်နှင့် ဝိတ်ချိန်ဒေတာဘေ့စ် • Vercel တွင် လွှင့်တင်ထားသည်',
-    sqlInstructions: 'SQL ဒေတာဘေ့စ် လမ်းညွှန်'
+    sqlInstructions: 'SQL ဒေတာဘေ့စ် လမ်းညွှန်',
+
+    // Bracket & Pairing System
+    bracketNav: 'တွဲဆိုင်းနှင့် မဲခွဲစနစ်',
+    rosterNav: 'ကစားသမားများ',
+    bracketTitle: 'ပြိုင်ပွဲတွဲဆိုင်းနှင့် Single Elimination Bracket မဲခွဲစနစ်',
+    bracketSubtitle: 'ကမ္ဘာ့တိုက်ကွမ်ဒို စံနှုန်းအတိုင်း Bye အလိုအလျောက် တွက်ချက်ပေးပြီး အနိုင်ရသူ ရွေးချယ်နိုင်သော တိုက်ရိုက်တွဲဆိုင်းစနစ်။',
+    singleEliminationWithByes: 'Single Elimination with Byes (Bye ဖြင့် ရှုံးထွက်စနစ်)',
+    selectDivision: 'ပြိုင်ပွဲ ဝိတ်တန်း ရွေးချယ်ရန်',
+    allAthletes: 'ကစားသမား အားလုံး',
+    selectedAthletesCount: (count, byes) => `ကစားသမား ${count} ဦး ရွေးချယ်ထားသည် • တွဲဆိုင်းမျှတစေရန် Bye ${byes} ဦး သတ်မှတ်ထားသည်`,
+    drawMode: 'မဲနှိုက် / မျိုးစေ့ချ စနစ်',
+    drawRandom: 'ကျပန်း မဲနှိုက်စနစ် (Lottery Draw)',
+    drawSeeded: 'ခါးပတ်အဆင့်လိုက် မျိုးစေ့ချခြင်း (Seeded Draw)',
+    drawClubSeparated: 'ကလပ်အချင်းချင်း မတိုက်စေရန် ခွဲထုတ်ခြင်း (Club Protection)',
+    generateDraw: 'တွဲဆိုင်း မဲခွဲထုတ်မည်',
+    reShuffle: 'မဲပြန်နှိုက်မည်',
+    resetBracket: 'ပွဲစဉ်များ ပြန်စမည်',
+    printBracket: 'တွဲဆိုင်း ပရင့်ထုတ်မည်',
+    bye: 'BYE (ဘိုင်)',
+    byeAdvanced: 'Bye ဖြင့် အလိုအလျောက် တက်ရောက်ပြီး',
+    hongCorner: 'ဟုန်း (အနီထောင့်)',
+    chongCorner: 'ချုန်း (အပြာထောင့်)',
+    selectWinner: 'အနိုင်ရသူ ရွေးမည်',
+    winner: 'အနိုင်ရရှိသူ',
+    champion: 'ပြိုင်ပွဲ ရွှေတံဆိပ်ဆုရှင် (Champion)',
+    runnerUp: 'ဒုတိယဆု (ငွေတံဆိပ်)',
+    bronze: 'ပူးတွဲ တတိယဆု (ကြေးတံဆိပ်)',
+    notEnoughAthletes: 'တွဲဆိုင်း မဲခွဲရန် အနည်းဆုံး ကစားသမား ၂ ဦး လိုအပ်ပါသည်။',
+    bracketGeneratedToast: 'ပြိုင်ပွဲတွဲဆိုင်း အောင်မြင်စွာ ဖန်တီးပြီးပါပြီ!',
+    autoAdvanceNotice: 'Bye ရရှိသော ကစားသမားများသည် ဒုတိယအဆင့်သို့ အလိုအလျောက် တိုက်ရိုက် တက်ရောက်ပါသည်။',
+    enterMatchScore: 'ရမှတ် (ရွေးချယ်ရန်)',
+    openBracketBtn: 'တွဲဆိုင်းခွဲမည်',
+
+    // Results Page (Initial Pairing Table)
+    resultsNav: 'ပထမအဆင့် တွဲဆိုင်းဇယား',
+    resultsTitle: 'ပထမအဆင့် တွဲဆိုင်းဇယား (Initial Pairing Table)',
+    resultsSubtitle: 'ကမ္ဘာ့တိုက်ကွမ်ဒို စည်းမျဉ်းအရ ပထမအဆင့် တွဲဆိုင်းများနှင့် Byes ခွဲဝေမှု ဇယား။',
+    exportResultsCsv: 'ပထမအဆင့် တွဲဆိုင်း ထုတ်ယူမည် (CSV)',
+    printResults: 'ပထမအဆင့် တွဲဆိုင်း ပရင့်ထုတ်မည်',
+    matchStatus: 'တွဲဆိုင်း အခြေအနေ',
+    scheduled: 'ပထမအဆင့် ယှဉ်ပြိုင်ရမည့်ပွဲ',
+    completed: 'ပထမအဆင့် ယှဉ်ပြိုင်ရမည့်ပွဲ',
+    noResultsYet: 'ပထမအဆင့် တွဲဆိုင်း မရှိသေးပါ',
+    noResultsDesc: 'တွဲဆိုင်းနှင့် မဲခွဲစနစ်တွင် တွဲဆိုင်း အရင် ဖန်တီးပေးပါ။',
+    backToBracket: 'တွဲဆိုင်းသို့ သွားမည်',
+    viewResultsBtn: 'ပထမအဆင့် တွဲဆိုင်းဇယား ကြည့်မည်',
+    bout: 'ပွဲစဉ်',
+    divisionFilter: 'ဝိတ်တန်းအလိုက် စစ်ထုတ်ရန်',
+    pairingType: 'တွဲဆိုင်း အခြေအနေ',
+    regularMatch: 'ပထမအဆင့် ယှဉ်ပြိုင်ရမည့်ပွဲ',
+    byeMatch: 'BYE (ဒုတိယအဆင့်သို့ တိုက်ရိုက်တက်)'
   }
 };
