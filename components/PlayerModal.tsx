@@ -4,19 +4,35 @@ import React, { useState, useEffect } from 'react';
 import { X, UserPlus, Save, Scale, Calendar, Award, Building2, User, Phone, FileText } from 'lucide-react';
 import { Player, PlayerFormData, Gender } from '@/types/player';
 import { DEFAULT_BELTS, calculateAge, getBeltStyle, getTaekwondoDivision } from '@/lib/taekwondo';
+import { Language, Translations } from '@/lib/translations';
 
 interface PlayerModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: PlayerFormData, id?: string) => Promise<boolean>;
   editingPlayer?: Player | null;
+  t: Translations;
+  lang: Language;
 }
+
+const BURMESE_BELTS: Record<string, string> = {
+  White: 'အဖြူ',
+  Yellow: 'အဝါ',
+  Green: 'အစိမ်း',
+  Blue: 'အပြာ',
+  Red: 'အနီ',
+  Brown: 'အညို',
+  Poom: 'ပူးမ်',
+  Black: 'အနက်'
+};
 
 export const PlayerModal: React.FC<PlayerModalProps> = ({
   isOpen,
   onClose,
   onSave,
-  editingPlayer
+  editingPlayer,
+  t,
+  lang
 }) => {
   const [formData, setFormData] = useState<PlayerFormData>({
     name: '',
@@ -75,20 +91,20 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
 
     // Validation
     if (!formData.name.trim()) {
-      setError('Please enter the athlete name.');
+      setError(lang === 'my' ? 'ကစားသမားအမည် ထည့်သွင်းပေးပါ' : 'Please enter the athlete name.');
       return;
     }
     if (!formData.date_of_birth) {
-      setError('Please select the date of birth.');
+      setError(lang === 'my' ? 'မွေးသက္ကရာဇ် ရွေးချယ်ပေးပါ' : 'Please select the date of birth.');
       return;
     }
     const weightNum = parseFloat(formData.weight.toString());
     if (isNaN(weightNum) || weightNum <= 0 || weightNum > 200) {
-      setError('Please enter a valid weight between 10kg and 200kg.');
+      setError(lang === 'my' ? '၁၀ ကီလို မှ ၂၀၀ ကီလို အတွင်း မှန်ကန်သော ဝိတ်ကို ထည့်ပါ' : 'Please enter a valid weight between 10kg and 200kg.');
       return;
     }
     if (!formData.club_name.trim()) {
-      setError('Please enter the club or team name.');
+      setError(lang === 'my' ? 'ကိုယ်စားပြုကလပ် အမည် ထည့်သွင်းပေးပါ' : 'Please enter the club or team name.');
       return;
     }
 
@@ -122,10 +138,10 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
             </div>
             <div>
               <h2 className="text-lg font-black text-slate-900 dark:text-white">
-                {editingPlayer ? 'Edit Athlete Profile' : 'Register New Athlete'}
+                {editingPlayer ? t.editAthleteProfile : t.registerNewAthlete}
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                Enter tournament participant weigh-in & registration details
+                {t.modalDesc}
               </p>
             </div>
           </div>
@@ -152,11 +168,11 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
                 className="w-3.5 h-3.5 rounded-full border border-slate-300 dark:border-slate-700"
                 style={{ backgroundColor: beltStyle.barColor }}
               />
-              <span className="text-slate-600 dark:text-slate-400 font-medium">Division:</span>
+              <span className="text-slate-600 dark:text-slate-400 font-medium">{t.calculatedDivision}:</span>
               <span className="font-bold text-red-600 dark:text-red-400">{currentDivision.standardText}</span>
             </div>
             <div className="text-slate-600 dark:text-slate-400 font-medium">
-              Age: <strong className="text-slate-900 dark:text-white">{currentAge}</strong> ({currentDivision.category})
+              {t.age}: <strong className="text-slate-900 dark:text-white">{currentAge}</strong> ({currentDivision.category})
             </div>
           </div>
 
@@ -165,14 +181,14 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
             <div className="sm:col-span-2">
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5 text-red-500" />
-                Athlete Full Name *
+                {t.fullName} *
               </label>
               <input
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="e.g. Aung Thu, John Doe"
+                placeholder={t.fullNamePlaceholder}
                 className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white"
               />
             </div>
@@ -181,7 +197,7 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-red-500" />
-                Date of Birth *
+                {t.dateOfBirth} *
               </label>
               <input
                 type="date"
@@ -196,7 +212,7 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
                 <Scale className="w-3.5 h-3.5 text-red-500" />
-                Weight (in Kg) *
+                {t.weightInKg} *
               </label>
               <div className="relative">
                 <input
@@ -217,21 +233,24 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
             {/* Gender */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-                Gender *
+                {t.gender} *
               </label>
               <div className="grid grid-cols-2 gap-2">
-                {(['Male', 'Female'] as Gender[]).map((g) => (
+                {[
+                  { label: t.male, val: 'Male' as Gender },
+                  { label: t.female, val: 'Female' as Gender }
+                ].map(({ label, val }) => (
                   <button
-                    key={g}
+                    key={val}
                     type="button"
-                    onClick={() => setFormData({ ...formData, gender: g })}
+                    onClick={() => setFormData({ ...formData, gender: val })}
                     className={`py-2 px-3 rounded-xl font-bold text-xs border transition-all ${
-                      formData.gender === g
+                      formData.gender === val
                         ? 'bg-red-600 border-red-500 text-white shadow-sm'
                         : 'bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    {g}
+                    {label}
                   </button>
                 ))}
               </div>
@@ -241,18 +260,21 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
                 <Award className="w-3.5 h-3.5 text-red-500" />
-                Belt Color *
+                {t.beltColor} *
               </label>
               <select
                 value={formData.belt_color}
                 onChange={(e) => setFormData({ ...formData, belt_color: e.target.value })}
                 className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white"
               >
-                {DEFAULT_BELTS.map((belt) => (
-                  <option key={belt} value={belt} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
-                    {belt} Belt
-                  </option>
-                ))}
+                {DEFAULT_BELTS.map((belt) => {
+                  const displayBelt = lang === 'my' && BURMESE_BELTS[belt] ? BURMESE_BELTS[belt] : belt;
+                  return (
+                    <option key={belt} value={belt} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                      {displayBelt} ({belt})
+                    </option>
+                  );
+                })}
               </select>
             </div>
 
@@ -260,14 +282,14 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
             <div className="sm:col-span-2">
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5 text-red-500" />
-                Name of Club / Dojang Representing *
+                {t.clubRepresenting} *
               </label>
               <input
                 type="text"
                 required
                 value={formData.club_name}
                 onChange={(e) => setFormData({ ...formData, club_name: e.target.value })}
-                placeholder="e.g. Yangon Tigers TKD, Tiger Martial Arts"
+                placeholder={t.clubPlaceholder}
                 className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white"
               />
             </div>
@@ -276,13 +298,13 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 flex items-center gap-1.5">
                 <Phone className="w-3.5 h-3.5 text-slate-400" />
-                Contact Phone (Optional)
+                {t.contactPhone}
               </label>
               <input
                 type="text"
                 value={formData.contact_number || ''}
                 onChange={(e) => setFormData({ ...formData, contact_number: e.target.value })}
-                placeholder="+95 9..."
+                placeholder={t.phonePlaceholder}
                 className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white"
               />
             </div>
@@ -291,13 +313,13 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-slate-400" />
-                Notes / Rank Details (Optional)
+                {t.notesAccolades}
               </label>
               <input
                 type="text"
                 value={formData.notes || ''}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                placeholder="e.g. 1st Dan, 2024 Gold Medalist"
+                placeholder={t.notesPlaceholder}
                 className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white"
               />
             </div>
@@ -310,7 +332,7 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
               onClick={onClose}
               className="px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition-colors"
             >
-              Cancel
+              {t.cancel}
             </button>
             <button
               type="submit"
@@ -318,7 +340,7 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({
               className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs sm:text-sm font-bold shadow-md shadow-red-500/20 transition-all disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
-              <span>{saving ? 'Saving...' : editingPlayer ? 'Update Athlete' : 'Complete Registration'}</span>
+              <span>{saving ? t.saving : editingPlayer ? t.updateAthlete : t.completeRegistration}</span>
             </button>
           </div>
         </form>

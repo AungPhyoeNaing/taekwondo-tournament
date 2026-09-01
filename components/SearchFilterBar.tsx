@@ -4,6 +4,7 @@ import React from 'react';
 import { Search, Filter, SlidersHorizontal, X, ArrowUpDown, LayoutGrid, Table, Check } from 'lucide-react';
 import { DEFAULT_BELTS, getBeltStyle } from '@/lib/taekwondo';
 import { PlayerFilters } from '@/types/player';
+import { Language, Translations } from '@/lib/translations';
 
 interface SearchFilterBarProps {
   filters: PlayerFilters;
@@ -13,7 +14,20 @@ interface SearchFilterBarProps {
   totalAll: number;
   viewMode: 'grid' | 'table';
   onChangeViewMode: (mode: 'grid' | 'table') => void;
+  t: Translations;
+  lang: Language;
 }
+
+const BURMESE_BELTS: Record<string, string> = {
+  White: 'အဖြူ',
+  Yellow: 'အဝါ',
+  Green: 'အစိမ်း',
+  Blue: 'အပြာ',
+  Red: 'အနီ',
+  Brown: 'အညို',
+  Poom: 'ပူးမ်',
+  Black: 'အနက်'
+};
 
 export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
   filters,
@@ -22,7 +36,9 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
   totalFiltered,
   totalAll,
   viewMode,
-  onChangeViewMode
+  onChangeViewMode,
+  t,
+  lang
 }) => {
   const [showAdvanced, setShowAdvanced] = React.useState(false);
 
@@ -86,7 +102,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             type="text"
             value={filters.query}
             onChange={handleQueryChange}
-            placeholder="Search by player name, club, or belt..."
+            placeholder={t.searchPlaceholder}
             className="w-full pl-11 pr-10 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
           />
           {filters.query && (
@@ -110,7 +126,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             }`}
           >
             <SlidersHorizontal className="w-4 h-4 text-red-500" />
-            <span>Filters</span>
+            <span>{t.filters}</span>
             {activeFilterCount > 0 && (
               <span className="w-5 h-5 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center font-bold">
                 {activeFilterCount}
@@ -125,11 +141,11 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
               onChange={handleSortChange}
               className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-300 py-2 px-2 focus:outline-none cursor-pointer"
             >
-              <option value="created_at" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">Newest First</option>
-              <option value="name" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">Name (A-Z)</option>
-              <option value="weight" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">Weight</option>
-              <option value="age" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">Age / DOB</option>
-              <option value="club" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">Club Name</option>
+              <option value="created_at" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">{t.newestFirst}</option>
+              <option value="name" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">{t.nameAZ}</option>
+              <option value="weight" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">{t.weight}</option>
+              <option value="age" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">{t.ageDob}</option>
+              <option value="club" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">{t.clubName}</option>
             </select>
             <button
               onClick={toggleSortOrder}
@@ -167,7 +183,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
       {/* Quick Belt Filter Chips */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
         <span className="text-slate-500 dark:text-slate-400 text-xs font-bold mr-1 flex items-center gap-1 flex-shrink-0">
-          <Filter className="w-3.5 h-3.5" /> Belts:
+          <Filter className="w-3.5 h-3.5" /> {t.belts}:
         </span>
         <button
           onClick={() => onChangeFilters({ ...filters, belt: '' })}
@@ -177,12 +193,14 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
               : 'bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800'
           }`}
         >
-          All Belts
+          {t.allBelts}
         </button>
 
         {DEFAULT_BELTS.map((belt) => {
           const style = getBeltStyle(belt);
           const isSelected = filters.belt.toLowerCase() === belt.toLowerCase();
+          const displayBelt = lang === 'my' && BURMESE_BELTS[belt] ? BURMESE_BELTS[belt] : belt;
+
           return (
             <button
               key={belt}
@@ -197,7 +215,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
                 className="w-2.5 h-2.5 rounded-full border border-slate-300 dark:border-slate-700"
                 style={{ backgroundColor: style.barColor }}
               />
-              <span>{belt}</span>
+              <span>{displayBelt}</span>
               {isSelected && <Check className="w-3 h-3 text-red-600 dark:text-red-400" />}
             </button>
           );
@@ -209,14 +227,17 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
         <div className="pt-3 border-t border-slate-200 dark:border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs animate-in slide-in-from-top-2 duration-150">
           {/* Gender Filter */}
           <div>
-            <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1">Gender</label>
+            <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1">{t.gender}</label>
             <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
-              {['All', 'Male', 'Female'].map((g) => {
-                const val = g === 'All' ? '' : g;
+              {[
+                { label: t.allGenders, val: '' },
+                { label: t.male, val: 'Male' },
+                { label: t.female, val: 'Female' }
+              ].map(({ label, val }) => {
                 const isSelected = filters.gender === val;
                 return (
                   <button
-                    key={g}
+                    key={val || 'all'}
                     onClick={() => onChangeFilters({ ...filters, gender: val })}
                     className={`py-1.5 text-center font-bold rounded-lg transition-all ${
                       isSelected
@@ -224,7 +245,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800'
                     }`}
                   >
-                    {g}
+                    {label}
                   </button>
                 );
               })}
@@ -233,30 +254,30 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
 
           {/* Age Division Filter */}
           <div>
-            <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1">Age Division</label>
+            <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1">{t.ageDivision}</label>
             <select
               value={filters.ageCategory}
               onChange={handleAgeCategoryChange}
               className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:border-red-500"
             >
-              <option value="">All Divisions</option>
-              <option value="Child">Child (&lt; 12)</option>
-              <option value="Cadet">Cadet (12 - 14)</option>
-              <option value="Junior">Junior (15 - 17)</option>
-              <option value="Senior">Senior (18 - 35)</option>
-              <option value="Ultra">Ultra / Masters (35+)</option>
+              <option value="">{t.allDivisions}</option>
+              <option value="Child">{t.child}</option>
+              <option value="Cadet">{t.cadet}</option>
+              <option value="Junior">{t.junior}</option>
+              <option value="Senior">{t.senior}</option>
+              <option value="Ultra">{t.ultra}</option>
             </select>
           </div>
 
           {/* Club Filter */}
           <div>
-            <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1">Representing Club</label>
+            <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1">{t.representingClub}</label>
             <select
               value={filters.club}
               onChange={handleClubChange}
               className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:border-red-500"
             >
-              <option value="">All Clubs ({availableClubs.length})</option>
+              <option value="">{t.allClubs} ({availableClubs.length})</option>
               {availableClubs.map((club) => (
                 <option key={club} value={club}>
                   {club}
@@ -267,11 +288,11 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
 
           {/* Weight Range (Kg) */}
           <div>
-            <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1">Weight Range (Kg)</label>
+            <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1">{t.weightRange}</label>
             <div className="flex items-center gap-1.5">
               <input
                 type="number"
-                placeholder="Min kg"
+                placeholder={t.minKg}
                 value={filters.minWeight}
                 onChange={(e) => onChangeFilters({ ...filters, minWeight: e.target.value })}
                 className="w-1/2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-1.5 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-red-500"
@@ -279,7 +300,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
               <span className="text-slate-400 font-bold">-</span>
               <input
                 type="number"
-                placeholder="Max kg"
+                placeholder={t.maxKg}
                 value={filters.maxWeight}
                 onChange={(e) => onChangeFilters({ ...filters, maxWeight: e.target.value })}
                 className="w-1/2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-1.5 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-red-500"
@@ -292,10 +313,9 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
       {/* Filter status summary bar */}
       <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-800/50">
         <div>
-          Showing <span className="text-slate-900 dark:text-white font-bold">{totalFiltered}</span> of{' '}
-          <span className="text-slate-900 dark:text-white font-bold">{totalAll}</span> registered athletes
+          {t.showingAthletes(totalFiltered, totalAll)}
           {activeFilterCount > 0 && (
-            <span className="ml-2 text-red-600 dark:text-red-400 font-semibold">({activeFilterCount} active filters)</span>
+            <span className="ml-2 text-red-600 dark:text-red-400 font-semibold">{t.activeFiltersCount(activeFilterCount)}</span>
           )}
         </div>
         {activeFilterCount > 0 && (
@@ -303,7 +323,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             onClick={clearAllFilters}
             className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-bold flex items-center gap-1 transition-colors"
           >
-            <X className="w-3.5 h-3.5" /> Clear Filters
+            <X className="w-3.5 h-3.5" /> {t.clearFilters}
           </button>
         )}
       </div>

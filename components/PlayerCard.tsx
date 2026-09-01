@@ -5,23 +5,40 @@ import React from 'react';
 import { Player } from '@/types/player';
 import { calculateAge, getBeltStyle, getTaekwondoDivision } from '@/lib/taekwondo';
 import { Award, Calendar, Scale, Building2, IdCard, Edit2, Trash2, User } from 'lucide-react';
+import { Language, Translations } from '@/lib/translations';
 
 interface PlayerCardProps {
   player: Player;
   onViewId: (player: Player) => void;
   onEdit: (player: Player) => void;
   onDelete: (player: Player) => void;
+  t: Translations;
+  lang: Language;
 }
+
+const BURMESE_BELTS: Record<string, string> = {
+  White: 'အဖြူ',
+  Yellow: 'အဝါ',
+  Green: 'အစိမ်း',
+  Blue: 'အပြာ',
+  Red: 'အနီ',
+  Brown: 'အညို',
+  Poom: 'ပူးမ်',
+  Black: 'အနက်'
+};
 
 export const PlayerCard: React.FC<PlayerCardProps> = ({
   player,
   onViewId,
   onEdit,
-  onDelete
+  onDelete,
+  t,
+  lang
 }) => {
   const belt = getBeltStyle(player.belt_color);
   const age = calculateAge(player.date_of_birth);
   const division = getTaekwondoDivision(Number(player.weight), player.gender, player.date_of_birth);
+  const displayBelt = lang === 'my' && BURMESE_BELTS[player.belt_color] ? BURMESE_BELTS[player.belt_color] : player.belt_color;
 
   return (
     <div className="group relative bg-white dark:bg-slate-900/90 hover:bg-slate-50/50 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-2xl p-5 shadow-sm hover:shadow-md dark:shadow-black/20 dark:hover:shadow-2xl dark:hover:shadow-red-950/20 transition-all duration-200 flex flex-col justify-between overflow-hidden">
@@ -70,7 +87,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold shadow-sm ${belt.badgeBg} ${belt.badgeText} ${belt.borderColor}`}
           >
             <Award className="w-3.5 h-3.5" />
-            <span>{player.belt_color}</span>
+            <span>{displayBelt}</span>
           </div>
         </div>
 
@@ -95,7 +112,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
           <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
             <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
             <span>
-              Age <strong className="text-slate-800 dark:text-slate-200">{age}</strong> yrs
+              {t.age} <strong className="text-slate-800 dark:text-slate-200">{age}</strong> {t.years}
             </span>
           </div>
           <div className="text-right text-slate-500 dark:text-slate-400">
@@ -104,7 +121,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
             </span>
           </div>
           <div className="col-span-2 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
-            DOB: {player.date_of_birth}
+            {t.dob}: {player.date_of_birth}
           </div>
         </div>
 
@@ -121,24 +138,24 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
         <button
           onClick={() => onViewId(player)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors"
-          title="View Tournament ID & Weigh-in Pass"
+          title={t.passId}
         >
           <IdCard className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
-          <span>Pass / ID</span>
+          <span>{t.passId}</span>
         </button>
 
         <div className="flex items-center gap-1">
           <button
             onClick={() => onEdit(player)}
             className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            title="Edit Athlete"
+            title={t.edit}
           >
             <Edit2 className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => onDelete(player)}
             className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
-            title="Delete Athlete"
+            title={t.delete}
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>

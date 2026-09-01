@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Database, Check, Copy, ExternalLink, X, AlertTriangle, ShieldCheck, Sparkles } from 'lucide-react';
 import { SupabaseHealthStatus } from '@/lib/supabase';
+import { Language, Translations } from '@/lib/translations';
 
 interface DatabaseSetupBannerProps {
   isOpen: boolean;
@@ -10,6 +11,8 @@ interface DatabaseSetupBannerProps {
   health: SupabaseHealthStatus | null;
   onRetry: () => void;
   onLoadDemoData: () => void;
+  t: Translations;
+  lang: Language;
 }
 
 export const DatabaseSetupModal: React.FC<DatabaseSetupBannerProps> = ({
@@ -17,7 +20,8 @@ export const DatabaseSetupModal: React.FC<DatabaseSetupBannerProps> = ({
   onClose,
   health,
   onRetry,
-  onLoadDemoData
+  onLoadDemoData,
+  t
 }) => {
   const [copied, setCopied] = useState(false);
   const [retrying, setRetrying] = useState(false);
@@ -85,7 +89,7 @@ VALUES
             </div>
             <div>
               <h2 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-                Supabase Database Setup
+                {t.setupModalTitle}
                 {health?.tableExists ? (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" /> Table Active
@@ -144,10 +148,10 @@ VALUES
               >
                 <div>
                   <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 group-hover:text-red-600 dark:group-hover:text-red-400">
-                    Step 1: Open Supabase SQL Editor
+                    {t.step1}
                     <ExternalLink className="w-4 h-4 opacity-70 group-hover:opacity-100" />
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Click to open your dashboard</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{t.step1Desc}</div>
                 </div>
               </a>
 
@@ -162,9 +166,9 @@ VALUES
                 <div className="text-left">
                   <div className="font-bold flex items-center gap-1.5">
                     {copied ? <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-4 h-4 text-red-600 dark:text-red-400" />}
-                    {copied ? 'SQL Copied to Clipboard!' : 'Step 2: Copy Migration SQL'}
+                    {copied ? t.copied : t.step2}
                   </div>
-                  <div className="text-xs opacity-80 mt-0.5">Paste &amp; click &quot;Run&quot; in SQL Editor</div>
+                  <div className="text-xs opacity-80 mt-0.5">{t.step2Desc}</div>
                 </div>
               </button>
             </div>
@@ -194,7 +198,7 @@ VALUES
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               <Sparkles className="w-4 h-4 text-amber-500" />
-              Use Demo Athletes Locally
+              {t.useDemoLocally}
             </button>
 
             <div className="flex items-center gap-2">
@@ -204,7 +208,7 @@ VALUES
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-xs font-bold text-white shadow-sm transition-all disabled:opacity-50"
               >
                 <Database className="w-4 h-4" />
-                <span>{retrying ? 'Checking Table...' : 'Test Supabase Connection'}</span>
+                <span>{retrying ? t.checkingTable : t.testConnection}</span>
               </button>
             </div>
           </div>

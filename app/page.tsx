@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase, checkSupabaseHealth, SupabaseHealthStatus } from '@/lib/supabase';
 import { Player, PlayerFilters, PlayerFormData } from '@/types/player';
 import { DEMO_PLAYERS, calculateAge, getTaekwondoDivision, getAgeCategory } from '@/lib/taekwondo';
+import { Language, translations } from '@/lib/translations';
 import { Navbar } from '@/components/Navbar';
 import { SearchFilterBar } from '@/components/SearchFilterBar';
 import { PlayerCard } from '@/components/PlayerCard';
@@ -22,6 +23,9 @@ export default function Home() {
   const [checkingHealth, setCheckingHealth] = useState(false);
   const [usingLocalFallback, setUsingLocalFallback] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [lang, setLang] = useState<Language>('my');
+
+  const t = translations[lang];
 
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -53,7 +57,7 @@ export default function Home() {
     sortOrder: 'desc'
   });
 
-  // Initialize theme from localStorage (default to 'light')
+  // Initialize theme & language from localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem('tkd_theme') as 'light' | 'dark' | null;
     if (savedTheme === 'dark') {
@@ -62,6 +66,11 @@ export default function Home() {
     } else {
       setTheme('light');
       document.documentElement.classList.remove('dark');
+    }
+
+    const savedLang = localStorage.getItem('tkd_lang') as Language | null;
+    if (savedLang) {
+      setLang(savedLang);
     }
   }, []);
 
@@ -74,6 +83,11 @@ export default function Home() {
     } else {
       document.documentElement.classList.remove('dark');
     }
+  };
+
+  const handleToggleLanguage = (newLang: Language) => {
+    setLang(newLang);
+    localStorage.setItem('tkd_lang', newLang);
   };
 
   // Fetch players from Supabase
@@ -185,7 +199,12 @@ export default function Home() {
             .eq('id', id);
 
           if (error) throw error;
-          showToast(`Athlete "${formData.name}" updated successfully!`, 'success');
+          showToast(
+            lang === 'my'
+              ? `ကစားသမား "${formData.name}" အချက်အလက်များ အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ!`
+              : `Athlete "${formData.name}" updated successfully!`,
+            'success'
+          );
         } else {
           // Insert Supabase
           const { error } = await supabase
@@ -205,7 +224,12 @@ export default function Home() {
 
           if (error) throw error;
           confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
-          showToast(`Athlete "${formData.name}" registered to Supabase!`, 'success');
+          showToast(
+            lang === 'my'
+              ? `ကစားသမား "${formData.name}" အား Supabase ထဲသို့ အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ!`
+              : `Athlete "${formData.name}" registered to Supabase!`,
+            'success'
+          );
         }
         await fetchPlayers();
         return true;
@@ -223,7 +247,12 @@ export default function Home() {
                 : p
             )
           );
-          showToast(`Athlete "${formData.name}" updated in local roster!`, 'success');
+          showToast(
+            lang === 'my'
+              ? `ကစားသမား "${formData.name}" အချက်အလက် ပြင်ဆင်ပြီးပါပြီ!`
+              : `Athlete "${formData.name}" updated in local roster!`,
+            'success'
+          );
         } else {
           const newPlayer: Player = {
             id: 'player-' + Date.now(),
@@ -239,7 +268,12 @@ export default function Home() {
           };
           setPlayers((prev) => [newPlayer, ...prev]);
           confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
-          showToast(`Athlete "${formData.name}" registered!`, 'success');
+          showToast(
+            lang === 'my'
+              ? `ကစားသမား "${formData.name}" အား စာရင်းသွင်းပြီးပါပြီ!`
+              : `Athlete "${formData.name}" registered!`,
+            'success'
+          );
         }
         return true;
       }
@@ -252,7 +286,12 @@ export default function Home() {
 
   // Delete Player
   const handleDeletePlayer = async (player: Player) => {
-    if (!window.confirm(`Are you sure you want to remove "${player.name}" from the tournament roster?`)) {
+    const confirmMsg =
+      lang === 'my'
+        ? `ကစားသမား "${player.name}" အား ပြိုင်ပွဲစာရင်းမှ ပယ်ဖျက်ရန် သေချာပါသလား?`
+        : `Are you sure you want to remove "${player.name}" from the tournament roster?`;
+
+    if (!window.confirm(confirmMsg)) {
       return;
     }
 
@@ -260,11 +299,21 @@ export default function Home() {
       if (health?.tableExists) {
         const { error } = await supabase.from('players').delete().eq('id', player.id);
         if (error) throw error;
-        showToast(`Removed "${player.name}" from database.`, 'info');
+        showToast(
+          lang === 'my'
+            ? `ကစားသမား "${player.name}" အား ပယ်ဖျက်ပြီးပါပြီ။`
+            : `Removed "${player.name}" from database.`,
+          'info'
+        );
         await fetchPlayers();
       } else {
         setPlayers((prev) => prev.filter((p) => p.id !== player.id));
-        showToast(`Removed "${player.name}" from roster.`, 'info');
+        showToast(
+          lang === 'my'
+            ? `ကစားသမား "${player.name}" အား ပယ်ဖျက်ပြီးပါပြီ။`
+            : `Removed "${player.name}" from roster.`,
+          'info'
+        );
       }
     } catch (err: unknown) {
       console.error('Error deleting player:', err);
@@ -277,13 +326,21 @@ export default function Home() {
     setPlayers(DEMO_PLAYERS);
     localStorage.setItem('tkd_local_players', JSON.stringify(DEMO_PLAYERS));
     setIsSetupModalOpen(false);
-    showToast('Loaded 6 official demo tournament athletes!', 'success');
+    showToast(
+      lang === 'my'
+        ? 'နမူနာ ကစားသမား ၆ ဦး ထည့်သွင်းပြီးပါပြီ!'
+        : 'Loaded 6 official demo tournament athletes!',
+      'success'
+    );
   };
 
   // Export CSV
   const handleExportCsv = () => {
     if (players.length === 0) {
-      showToast('No athlete data to export.', 'info');
+      showToast(
+        lang === 'my' ? 'ထုတ်ယူရန် ကစားသမားဒေတာ မရှိပါ' : 'No athlete data to export.',
+        'info'
+      );
       return;
     }
 
@@ -329,7 +386,12 @@ export default function Home() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    showToast('Tournament roster downloaded as CSV!', 'success');
+    showToast(
+      lang === 'my'
+        ? 'ပြိုင်ပွဲဝင်စာရင်းကို CSV ဖိုင်အဖြစ် ဒေါင်းလုဒ်ရယူပြီးပါပြီ!'
+        : 'Tournament roster downloaded as CSV!',
+      'success'
+    );
   };
 
   // Available unique clubs for filter dropdown
@@ -447,6 +509,9 @@ export default function Home() {
         totalPlayers={players.length}
         theme={theme}
         onToggleTheme={handleToggleTheme}
+        lang={lang}
+        onToggleLanguage={handleToggleLanguage}
+        t={t}
       />
 
       {/* Supabase Notice Banner if table is not yet created */}
@@ -456,14 +521,14 @@ export default function Home() {
             <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
               <Database className="w-4 h-4 flex-shrink-0 text-amber-600 dark:text-amber-400" />
               <span>
-                <strong>Supabase Setup Needed:</strong> Connected to your project, but the <code className="bg-amber-100 dark:bg-amber-900/50 px-1 py-0.5 rounded font-mono text-amber-900 dark:text-white font-bold">players</code> table needs 1-click creation.
+                <strong>{t.supabaseSetupNeeded}</strong> {t.supabaseSetupNeededDesc}
               </span>
             </div>
             <button
               onClick={() => setIsSetupModalOpen(true)}
               className="px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold transition-colors flex-shrink-0 shadow-sm"
             >
-              View 10s SQL Setup
+              {t.viewSetupBtn}
             </button>
           </div>
         </div>
@@ -475,13 +540,13 @@ export default function Home() {
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-white via-red-50/50 to-white dark:from-slate-900 dark:via-red-950/40 dark:to-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm dark:shadow-2xl transition-colors">
           <div className="relative z-10 max-w-3xl space-y-3">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-red-100 dark:bg-red-600/20 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-500/30">
-              World Taekwondo Federation Rules
+              {t.heroTag}
             </span>
             <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight uppercase">
-              Athlete Database & Weigh-In Search
+              {t.heroTitle}
             </h2>
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-normal leading-relaxed">
-              Real-time search and management portal for competitors. Filter by weight division, belt hierarchy, age brackets, and representing dojangs with instant tournament credential generation.
+              {t.heroDesc}
             </p>
             <div className="pt-2 flex flex-wrap items-center gap-3">
               <button
@@ -492,14 +557,14 @@ export default function Home() {
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-sm shadow-md shadow-red-500/20 transition-all hover:scale-[1.02]"
               >
                 <UserPlus className="w-4 h-4" />
-                Register New Competitor
+                {t.registerCompetitorBtn}
               </button>
 
               <button
                 onClick={handleExportCsv}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold transition-colors shadow-sm"
               >
-                Download Weigh-In Sheet (CSV)
+                {t.downloadWeighInBtn}
               </button>
             </div>
           </div>
@@ -509,7 +574,7 @@ export default function Home() {
         </div>
 
         {/* Tournament Metrics Overview */}
-        <TournamentStats players={players} onAddSampleData={handleLoadDemoData} />
+        <TournamentStats players={players} onAddSampleData={handleLoadDemoData} t={t} />
 
         {/* Search & Multi-Filter Engine */}
         <SearchFilterBar
@@ -520,6 +585,8 @@ export default function Home() {
           totalAll={players.length}
           viewMode={viewMode}
           onChangeViewMode={setViewMode}
+          t={t}
+          lang={lang}
         />
 
         {/* Athletes List / Content Area */}
@@ -535,11 +602,11 @@ export default function Home() {
               <SearchX className="w-8 h-8" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">No Athletes Found</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t.noAthletesFound}</h3>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
                 {players.length === 0
-                  ? 'No fighters have been registered yet. Add the first competitor or load the official demo roster.'
-                  : 'No players match your search criteria. Try adjusting your query, belt, weight, or gender filters.'}
+                  ? t.noAthletesDescEmpty
+                  : t.noAthletesDescFilter}
               </p>
             </div>
             <div className="flex items-center justify-center gap-3 pt-2">
@@ -552,13 +619,13 @@ export default function Home() {
                     }}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-all shadow-sm"
                   >
-                    <UserPlus className="w-4 h-4" /> Register First Fighter
+                    <UserPlus className="w-4 h-4" /> {t.registerFirstFighter}
                   </button>
                   <button
                     onClick={handleLoadDemoData}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all"
                   >
-                    <Sparkles className="w-4 h-4 text-amber-500" /> Load Demo Roster
+                    <Sparkles className="w-4 h-4 text-amber-500" /> {t.loadDemoRoster}
                   </button>
                 </>
               ) : (
@@ -578,7 +645,7 @@ export default function Home() {
                   }
                   className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all"
                 >
-                  Clear All Filters
+                  {t.clearFilters}
                 </button>
               )}
             </div>
@@ -596,6 +663,8 @@ export default function Home() {
                   setIsAddModalOpen(true);
                 }}
                 onDelete={handleDeletePlayer}
+                t={t}
+                lang={lang}
               />
             ))}
           </div>
@@ -609,6 +678,8 @@ export default function Home() {
               setIsAddModalOpen(true);
             }}
             onDelete={handleDeletePlayer}
+            t={t}
+            lang={lang}
           />
         )}
       </main>
@@ -617,7 +688,7 @@ export default function Home() {
       <footer className="border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 py-8 px-4 text-center text-xs text-slate-500 transition-colors">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div>
-            Taekwondo Tournament Athlete Registry & Weigh-In Database • Hosted on Vercel
+            {t.footerText}
           </div>
           <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
             <span>Powered by Supabase PostgreSQL</span>
@@ -626,7 +697,7 @@ export default function Home() {
               onClick={() => setIsSetupModalOpen(true)}
               className="hover:text-red-600 dark:hover:text-red-400 transition-colors underline decoration-dotted"
             >
-              SQL Database Instructions
+              {t.sqlInstructions}
             </button>
           </div>
         </div>
@@ -641,12 +712,16 @@ export default function Home() {
         }}
         onSave={handleSavePlayer}
         editingPlayer={editingPlayer}
+        t={t}
+        lang={lang}
       />
 
       <PlayerIdCardModal
         player={idCardPlayer}
         isOpen={!!idCardPlayer}
         onClose={() => setIdCardPlayer(null)}
+        t={t}
+        lang={lang}
       />
 
       <DatabaseSetupModal
@@ -655,6 +730,8 @@ export default function Home() {
         health={health}
         onRetry={fetchPlayers}
         onLoadDemoData={handleLoadDemoData}
+        t={t}
+        lang={lang}
       />
     </div>
   );

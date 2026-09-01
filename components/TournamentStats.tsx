@@ -3,15 +3,18 @@
 import React from 'react';
 import { Users, Building2, Award, Scale, Flame } from 'lucide-react';
 import { Player } from '@/types/player';
+import { Translations } from '@/lib/translations';
 
 interface TournamentStatsProps {
   players: Player[];
   onAddSampleData: () => void;
+  t: Translations;
 }
 
 export const TournamentStats: React.FC<TournamentStatsProps> = ({
   players,
-  onAddSampleData
+  onAddSampleData,
+  t
 }) => {
   const total = players.length;
   const uniqueClubs = new Set(players.map((p) => p.club_name.trim())).size;
@@ -32,7 +35,7 @@ export const TournamentStats: React.FC<TournamentStatsProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Total Athletes
+              {t.totalAthletes}
             </div>
             <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">
               {total}
@@ -54,7 +57,7 @@ export const TournamentStats: React.FC<TournamentStatsProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Dojangs / Clubs
+              {t.activeTeams}
             </div>
             <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">
               {uniqueClubs}
@@ -64,8 +67,8 @@ export const TournamentStats: React.FC<TournamentStatsProps> = ({
             <Building2 className="w-5 h-5" />
           </div>
         </div>
-        <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-          Active fighting teams
+        <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
+          {uniqueClubs} clubs registered
         </div>
       </div>
 
@@ -74,7 +77,7 @@ export const TournamentStats: React.FC<TournamentStatsProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Dan / Poom Ranks
+              {t.danPoomRanks}
             </div>
             <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">
               {blackBelts}
@@ -85,7 +88,7 @@ export const TournamentStats: React.FC<TournamentStatsProps> = ({
           </div>
         </div>
         <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
-          {total > 0 ? Math.round((blackBelts / total) * 100) : 0}% Elite black belts
+          {total > 0 ? Math.round((blackBelts / total) * 100) : 0}% {t.eliteBlackBelts}
         </div>
       </div>
 
@@ -94,7 +97,7 @@ export const TournamentStats: React.FC<TournamentStatsProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Average Weight
+              {t.averageWeight}
             </div>
             <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">
               {averageWeight} <span className="text-sm font-semibold text-slate-400">kg</span>
@@ -110,11 +113,11 @@ export const TournamentStats: React.FC<TournamentStatsProps> = ({
             className="mt-2 flex items-center gap-1.5 text-xs font-bold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
           >
             <Flame className="w-3.5 h-3.5" />
-            <span>Load Sample Roster</span>
+            <span>{t.loadSampleRoster}</span>
           </button>
         ) : (
           <div className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
-            <span>● Weigh-in system active</span>
+            <span>{t.weighInActive}</span>
           </div>
         )}
       </div>

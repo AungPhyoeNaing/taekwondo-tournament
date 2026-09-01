@@ -5,23 +5,40 @@ import React from 'react';
 import { X, Printer, Shield, QrCode, Award, Building2, Scale, Calendar, CheckCircle2 } from 'lucide-react';
 import { Player } from '@/types/player';
 import { calculateAge, getBeltStyle, getTaekwondoDivision } from '@/lib/taekwondo';
+import { Language, Translations } from '@/lib/translations';
 
 interface PlayerIdCardModalProps {
   player: Player | null;
   isOpen: boolean;
   onClose: () => void;
+  t: Translations;
+  lang: Language;
 }
+
+const BURMESE_BELTS: Record<string, string> = {
+  White: 'အဖြူ',
+  Yellow: 'အဝါ',
+  Green: 'အစိမ်း',
+  Blue: 'အပြာ',
+  Red: 'အနီ',
+  Brown: 'အညို',
+  Poom: 'ပူးမ်',
+  Black: 'အနက်'
+};
 
 export const PlayerIdCardModal: React.FC<PlayerIdCardModalProps> = ({
   player,
   isOpen,
-  onClose
+  onClose,
+  t,
+  lang
 }) => {
   if (!isOpen || !player) return null;
 
   const belt = getBeltStyle(player.belt_color);
   const age = calculateAge(player.date_of_birth);
   const division = getTaekwondoDivision(Number(player.weight), player.gender, player.date_of_birth);
+  const displayBelt = lang === 'my' && BURMESE_BELTS[player.belt_color] ? BURMESE_BELTS[player.belt_color] : player.belt_color;
 
   const handlePrint = () => {
     window.print();
@@ -34,7 +51,7 @@ export const PlayerIdCardModal: React.FC<PlayerIdCardModalProps> = ({
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 print:hidden">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
             <Shield className="w-4 h-4 text-red-600" />
-            <span>Official Athlete Credential</span>
+            <span>{t.officialCredential}</span>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -42,7 +59,7 @@ export const PlayerIdCardModal: React.FC<PlayerIdCardModalProps> = ({
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-all shadow-sm"
             >
               <Printer className="w-3.5 h-3.5" />
-              <span>Print Pass</span>
+              <span>{t.printPass}</span>
             </button>
             <button
               onClick={onClose}
@@ -62,13 +79,13 @@ export const PlayerIdCardModal: React.FC<PlayerIdCardModalProps> = ({
             {/* Header Ribbon */}
             <div className="px-5 pt-3 pb-4 bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white text-center print:bg-black print:text-white">
               <div className="text-[10px] uppercase font-black tracking-widest text-amber-100 print:text-white">
-                World Taekwondo Championship
+                {t.worldTkdChampionship}
               </div>
               <h2 className="text-xl font-black tracking-tight uppercase">
-                Official Competitor
+                {t.officialCompetitor}
               </h2>
               <div className="text-[11px] font-semibold text-white/90">
-                2026 Tournament Weigh-in Credential
+                {t.credentialSub}
               </div>
             </div>
 
@@ -103,7 +120,7 @@ export const PlayerIdCardModal: React.FC<PlayerIdCardModalProps> = ({
                       className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${belt.badgeBg} ${belt.badgeText} ${belt.borderColor}`}
                     >
                       <Award className="w-3 h-3" />
-                      {player.belt_color} Belt
+                      {displayBelt} ({player.belt_color})
                     </span>
                   </div>
                 </div>
@@ -113,7 +130,7 @@ export const PlayerIdCardModal: React.FC<PlayerIdCardModalProps> = ({
               <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 dark:bg-slate-950/80 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 print:bg-slate-50 print:border-slate-300">
                 <div>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 print:text-slate-600 block uppercase font-bold">
-                    Official Weight
+                    {t.officialWeight}
                   </span>
                   <div className="flex items-center gap-1 font-bold text-sm text-slate-900 dark:text-white print:text-black">
                     <Scale className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 print:text-black" />
@@ -123,7 +140,7 @@ export const PlayerIdCardModal: React.FC<PlayerIdCardModalProps> = ({
 
                 <div>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 print:text-slate-600 block uppercase font-bold">
-                    WT Division
+                    {t.wtDivision}
                   </span>
                   <div className="font-bold text-sm text-red-600 dark:text-red-400 print:text-black truncate">
                     {division.divisionName}
@@ -132,16 +149,16 @@ export const PlayerIdCardModal: React.FC<PlayerIdCardModalProps> = ({
 
                 <div>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 print:text-slate-600 block uppercase font-bold">
-                    Gender & Age
+                    {t.genderAndAge}
                   </span>
                   <div className="font-bold text-slate-800 dark:text-slate-200 print:text-black">
-                    {player.gender} • {age} yrs ({division.category})
+                    {lang === 'my' ? (player.gender === 'Male' ? 'ကျား' : player.gender === 'Female' ? 'မ' : player.gender) : player.gender} • {age} {t.years} ({division.category})
                   </div>
                 </div>
 
                 <div>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 print:text-slate-600 block uppercase font-bold">
-                    Date of Birth
+                    {t.dateOfBirth}
                   </span>
                   <div className="font-bold text-slate-800 dark:text-slate-200 print:text-black flex items-center gap-1">
                     <Calendar className="w-3 h-3 text-slate-400 print:text-black" />
@@ -156,10 +173,10 @@ export const PlayerIdCardModal: React.FC<PlayerIdCardModalProps> = ({
                   <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 print:text-black" />
                   <div>
                     <div className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 print:text-black uppercase">
-                      Weigh-In Verified
+                      {t.weighInVerified}
                     </div>
                     <div className="text-[9px] text-emerald-600 dark:text-emerald-400/80 print:text-slate-600 font-medium">
-                      Eligible for Official Draw & Brackets
+                      {t.eligibleDraw}
                     </div>
                   </div>
                 </div>
@@ -168,7 +185,7 @@ export const PlayerIdCardModal: React.FC<PlayerIdCardModalProps> = ({
 
               {/* Footer athlete ID */}
               <div className="pt-2 text-center text-[10px] font-mono text-slate-500 dark:text-slate-500 print:text-slate-600 border-t border-slate-200 dark:border-slate-800 print:border-slate-300">
-                ATHLETE ID: {player.id.slice(0, 18).toUpperCase()}
+                {t.athleteId}: {player.id.slice(0, 18).toUpperCase()}
               </div>
             </div>
           </div>
