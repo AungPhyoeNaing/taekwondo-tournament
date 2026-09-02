@@ -1,10 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Shield, UserPlus, Database, Trophy, FileSpreadsheet, RefreshCw, Sun, Moon, Users, Swords, FileText } from 'lucide-react';
+import { Shield, UserPlus, Database, Trophy, FileSpreadsheet, RefreshCw, Sun, Moon, Users, Swords } from 'lucide-react';
 import { SupabaseHealthStatus } from '@/lib/supabase';
 import { Language, Translations } from '@/lib/translations';
-import Link from 'next/link';
 
 interface NavbarProps {
   onOpenAddModal: () => void;
@@ -19,8 +18,8 @@ interface NavbarProps {
   lang: Language;
   onToggleLanguage: (l: Language) => void;
   t: Translations;
-  activeTab: 'roster' | 'bracket';
-  onSelectTab: (tab: 'roster' | 'bracket') => void;
+  activeTab: 'roster' | 'custom-pairing';
+  onSelectTab: (tab: 'roster' | 'custom-pairing') => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -71,7 +70,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center bg-slate-100/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 rounded-xl p-1 text-xs font-bold shadow-inner">
             <button
               onClick={() => onSelectTab('roster')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
                 activeTab === 'roster'
                   ? 'bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 shadow-sm font-black'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -81,23 +80,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>{t.rosterNav}</span>
             </button>
             <button
-              onClick={() => onSelectTab('bracket')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
-                activeTab === 'bracket'
-                  ? 'bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 shadow-sm font-black'
+              onClick={() => onSelectTab('custom-pairing')}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
+                activeTab === 'custom-pairing'
+                  ? 'bg-white dark:bg-slate-800 text-purple-600 dark:text-purple-400 shadow-sm font-black'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <Swords className="w-3.5 h-3.5" />
-              <span>{t.bracketNav}</span>
+              <span>{t.customPairingBtn}</span>
             </button>
-            <Link
-              href="/results"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-            >
-              <FileText className="w-3.5 h-3.5 text-amber-500" />
-              <span className="hidden sm:inline">{t.resultsNav}</span>
-            </Link>
           </div>
 
           {/* Action buttons, Utilities & Register CTA */}

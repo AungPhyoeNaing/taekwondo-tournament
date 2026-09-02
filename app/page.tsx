@@ -13,7 +13,7 @@ import { PlayerModal } from '@/components/PlayerModal';
 import { PlayerIdCardModal } from '@/components/PlayerIdCardModal';
 import { DatabaseSetupModal } from '@/components/DatabaseSetupBanner';
 import { TournamentStats } from '@/components/TournamentStats';
-import { TournamentBracket } from '@/components/TournamentBracket';
+import { CustomPairingView } from '@/components/CustomPairingView';
 import confetti from 'canvas-confetti';
 import { AlertCircle, CheckCircle2, UserPlus, Database, SearchX, Sparkles } from 'lucide-react';
 
@@ -34,7 +34,7 @@ export default function Home() {
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [idCardPlayer, setIdCardPlayer] = useState<Player | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
-  const [activeTab, setActiveTab] = useState<'roster' | 'bracket'>('roster');
+  const [activeTab, setActiveTab] = useState<'roster' | 'custom-pairing'>('roster');
 
   // Notification Toast state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -542,9 +542,9 @@ export default function Home() {
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-4">
 
-        {activeTab === 'bracket' ? (
-          /* Tournament Bracket View */
-          <TournamentBracket
+        {activeTab === 'custom-pairing' ? (
+          /* Dedicated Custom Pairing Suite */
+          <CustomPairingView
             players={players}
             lang={lang}
             t={t}
