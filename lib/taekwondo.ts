@@ -207,76 +207,345 @@ export function getTaekwondoDivision(weightKg: number, gender: Gender | string, 
 
 export const DEMO_PLAYERS: Player[] = [
   {
-    id: 'demo-1',
-    name: 'Aung Thu',
-    date_of_birth: '2002-05-14',
-    weight: 58.00,
-    gender: 'Male',
-    belt_color: 'Black',
-    club_name: 'Yangon Tigers TKD',
-    contact_number: '+95 9 791 234567',
-    notes: 'National Championship 2024 Gold Medalist (Flyweight)',
-    created_at: '2026-08-15T08:30:00Z'
-  },
-  {
-    id: 'demo-2',
-    name: 'Su Myat Noe',
-    date_of_birth: '2004-11-20',
-    weight: 49.20,
+    id: 'real-1',
+    name: 'May Pachi Khit',
+    date_of_birth: '2013-10-31',
+    weight: 42.8,
     gender: 'Female',
-    belt_color: 'Black',
-    club_name: 'Golden Dragon Dojang',
-    contact_number: '+95 9 421 889900',
-    notes: 'South East Asian Qualifier Winner, 2nd Dan',
-    created_at: '2026-08-18T10:15:00Z'
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:01Z'
   },
   {
-    id: 'demo-3',
-    name: 'Min Thant',
-    date_of_birth: '2006-03-08',
-    weight: 63.50,
-    gender: 'Male',
-    belt_color: 'Red',
-    club_name: 'Mandalay Warriors',
-    contact_number: '+95 9 250 112233',
-    notes: 'High speed roundhouse kick specialist',
-    created_at: '2026-08-20T14:40:00Z'
-  },
-  {
-    id: 'demo-4',
-    name: 'Hnin Yu Wai',
-    date_of_birth: '2008-09-12',
-    weight: 46.00,
+    id: 'real-2',
+    name: 'May Phoe Mon',
+    date_of_birth: '2016-12-01',
+    weight: 43.8,
     gender: 'Female',
-    belt_color: 'Blue',
-    club_name: 'Taunggyi Stars TKD',
-    contact_number: '+95 9 977 445566',
-    notes: 'Cadet division champion 2025',
-    created_at: '2026-08-22T09:20:00Z'
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:02Z'
   },
   {
-    id: 'demo-5',
-    name: 'Kyaw Zin Lat',
-    date_of_birth: '2001-01-25',
-    weight: 74.80,
-    gender: 'Male',
-    belt_color: 'Black',
-    club_name: 'Naypyidaw Phoenix',
-    contact_number: '+95 9 690 334455',
-    notes: 'Welterweight state champion, 3rd Dan',
-    created_at: '2026-08-25T16:00:00Z'
+    id: 'real-3',
+    name: 'Kyal Sin Lin Lae',
+    date_of_birth: '2006-05-16',
+    weight: 52.0,
+    gender: 'Female',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:03Z'
   },
   {
-    id: 'demo-6',
-    name: 'Lin Htet',
-    date_of_birth: '2007-07-19',
-    weight: 55.40,
+    id: 'real-4',
+    name: 'Thura Aung',
+    date_of_birth: '1999-05-11',
+    weight: 62.0,
     gender: 'Male',
     belt_color: 'Green',
-    club_name: 'Apex Martial Arts Club',
-    contact_number: '+95 9 400 667788',
-    notes: 'First time tournament entrant, promising counter-attacker',
-    created_at: '2026-08-28T11:45:00Z'
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:04Z'
+  },
+  {
+    id: 'real-5',
+    name: 'Hein Htet Zaw',
+    date_of_birth: '2005-12-23',
+    weight: 51.5,
+    gender: 'Male',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:05Z'
+  },
+  {
+    id: 'real-6',
+    name: 'Poe Kyi Phyu Khant',
+    date_of_birth: '2021-03-11',
+    weight: 27.0,
+    gender: 'Female',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:06Z'
+  },
+  {
+    id: 'real-7',
+    name: 'Thiri Han',
+    date_of_birth: '2010-05-14',
+    weight: 48.2,
+    gender: 'Female',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:07Z'
+  },
+  {
+    id: 'real-8',
+    name: 'Myat Thiri',
+    date_of_birth: '2013-05-23',
+    weight: 39.8,
+    gender: 'Female',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:08Z'
+  },
+  {
+    id: 'real-9',
+    name: 'Htet Su Yati Lin',
+    date_of_birth: '2011-02-22',
+    weight: 41.8,
+    gender: 'Female',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:09Z'
+  },
+  {
+    id: 'real-10',
+    name: 'Kyaw Zin Htet',
+    date_of_birth: '2013-10-28',
+    weight: 37.5,
+    gender: 'Male',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:10Z'
+  },
+  {
+    id: 'real-11',
+    name: 'Myint Myat Hein',
+    date_of_birth: '2012-11-04',
+    weight: 64.5,
+    gender: 'Male',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:11Z'
+  },
+  {
+    id: 'real-12',
+    name: 'Myat Bhone Khant',
+    date_of_birth: '2016-11-03',
+    weight: 28.9,
+    gender: 'Male',
+    belt_color: 'Green',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:12Z'
+  },
+  {
+    id: 'real-13',
+    name: 'Shwe Yaung Hlaing',
+    date_of_birth: '2016-04-27',
+    weight: 57.0,
+    gender: 'Male',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:13Z'
+  },
+  {
+    id: 'real-14',
+    name: 'Shin Thant Hlaing',
+    date_of_birth: '2016-04-27',
+    weight: 37.0,
+    gender: 'Male',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:14Z'
+  },
+  {
+    id: 'real-15',
+    name: 'May Phyo Thant',
+    date_of_birth: '2004-02-20',
+    weight: 43.8,
+    gender: 'Female',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:15Z'
+  },
+  {
+    id: 'real-16',
+    name: 'Yati Hmue Kyaw',
+    date_of_birth: '2011-06-08',
+    weight: 43.0,
+    gender: 'Female',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:16Z'
+  },
+  {
+    id: 'real-17',
+    name: 'Lin Thuta Min',
+    date_of_birth: '2018-08-29',
+    weight: 16.0,
+    gender: 'Male',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:17Z'
+  },
+  {
+    id: 'real-18',
+    name: 'Win Lae Shwe Yi',
+    date_of_birth: '2012-03-21',
+    weight: 41.0,
+    gender: 'Female',
+    belt_color: 'Green',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:18Z'
+  },
+  {
+    id: 'real-19',
+    name: 'Yaung Zin',
+    date_of_birth: '2005-08-31',
+    weight: 49.2,
+    gender: 'Male',
+    belt_color: 'Green',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:19Z'
+  },
+  {
+    id: 'real-20',
+    name: 'Theint Kyi PhyuKoKo',
+    date_of_birth: '2003-10-31',
+    weight: 51.5,
+    gender: 'Female',
+    belt_color: 'Green',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:20Z'
+  },
+  {
+    id: 'real-21',
+    name: 'Pyae Phyo Thaw',
+    date_of_birth: '2003-12-05',
+    weight: 68.5,
+    gender: 'Male',
+    belt_color: 'Yellow',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:21Z'
+  },
+  {
+    id: 'real-22',
+    name: 'Akaya Moe Thar',
+    date_of_birth: '2021-07-25',
+    weight: 14.1,
+    gender: 'Male',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:22Z'
+  },
+  {
+    id: 'real-23',
+    name: 'Sai Noom Han Hleng',
+    date_of_birth: '2006-12-02',
+    weight: 60.0,
+    gender: 'Male',
+    belt_color: 'Yellow',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:23Z'
+  },
+  {
+    id: 'real-24',
+    name: 'Myint Myat Thazin',
+    date_of_birth: '2003-01-23',
+    weight: 54.0,
+    gender: 'Female',
+    belt_color: 'Green',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:24Z'
+  },
+  {
+    id: 'real-25',
+    name: 'Aung Myo Khant',
+    date_of_birth: '2010-01-10',
+    weight: 61.0,
+    gender: 'Male',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:25Z'
+  },
+  {
+    id: 'real-26',
+    name: 'Khaing Thazin Thin',
+    date_of_birth: '2016-01-04',
+    weight: 38.0,
+    gender: 'Female',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:26Z'
+  },
+  {
+    id: 'real-27',
+    name: 'Khin Shin Thant',
+    date_of_birth: '2010-10-07',
+    weight: 52.0,
+    gender: 'Female',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:27Z'
+  },
+  {
+    id: 'real-28',
+    name: 'Kaung Khant Hein',
+    date_of_birth: '2005-01-01',
+    weight: 57.7,
+    gender: 'Male',
+    belt_color: 'Green',
+    club_name: 'Phoenix',
+    notes: 'Birth Year 2005 (Age 21)',
+    created_at: '2026-09-02T10:00:28Z'
+  },
+  {
+    id: 'real-29',
+    name: 'Way Yan Hein',
+    date_of_birth: '2018-12-12',
+    weight: 38.0,
+    gender: 'Male',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:29Z'
+  },
+  {
+    id: 'real-30',
+    name: 'Eaindray Min Thu',
+    date_of_birth: '2014-08-24',
+    weight: 35.45,
+    gender: 'Female',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:30Z'
+  },
+  {
+    id: 'real-31',
+    name: 'Kay Zin Lin',
+    date_of_birth: '2008-08-18',
+    weight: 59.0,
+    gender: 'Female',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:31Z'
+  },
+  {
+    id: 'real-32',
+    name: 'Su Su Naing',
+    date_of_birth: '2007-10-10',
+    weight: 42.45,
+    gender: 'Female',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:32Z'
+  },
+  {
+    id: 'real-33',
+    name: 'Nan Cherry Ko',
+    date_of_birth: '2007-04-02',
+    weight: 42.6,
+    gender: 'Female',
+    belt_color: 'White',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:33Z'
+  },
+  {
+    id: 'real-34',
+    name: 'Hannadi Myo Thein',
+    date_of_birth: '2012-08-16',
+    weight: 36.5,
+    gender: 'Female',
+    belt_color: 'Green',
+    club_name: 'Phoenix',
+    created_at: '2026-09-02T10:00:34Z'
   }
 ];
 
