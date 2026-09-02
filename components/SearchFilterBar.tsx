@@ -219,11 +219,14 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
                 onChange={handleAgeCategoryChange}
                 className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-1 focus:ring-red-500"
               >
-                <option value="">{lang === 'my' ? 'အသက်အရွယ် အားလုံး' : 'All Divisions'}</option>
-                <option value="Child">{lang === 'my' ? 'ကလေး (< 12 နှစ်)' : 'Child (< 12 yrs)'}</option>
-                <option value="Cadet">{lang === 'my' ? 'ကာဒက် (၁၂ - ၁၄ နှစ်)' : 'Cadet (12-14 yrs)'}</option>
-                <option value="Junior">{lang === 'my' ? 'လူငယ် (၁၅ - ၁၇ နှစ်)' : 'Junior (15-17 yrs)'}</option>
-                <option value="Senior">{lang === 'my' ? 'လူကြီး (၁၈+ နှစ်)' : 'Senior (18+ yrs)'}</option>
+                <option value="">{lang === 'my' ? 'အသက်အရွယ် အားလုံး' : 'All Age Divisions'}</option>
+                <option value="U8">{lang === 'my' ? 'U8 (၈ နှစ်နှင့်အောက်)' : 'U8 (Under 8 yrs)'}</option>
+                <option value="U10">{lang === 'my' ? 'U10 (၉ - ၁၀ နှစ်)' : 'U10 (9-10 yrs)'}</option>
+                <option value="U12">{lang === 'my' ? 'U12 (၁၁ - ၁၂ နှစ်)' : 'U12 (11-12 yrs)'}</option>
+                <option value="U14">{lang === 'my' ? 'U14 (၁၃ - ၁၄ နှစ်)' : 'U14 (13-14 yrs)'}</option>
+                <option value="U16">{lang === 'my' ? 'U16 (၁၅ - ၁၆ နှစ်)' : 'U16 (15-16 yrs)'}</option>
+                <option value="U18">{lang === 'my' ? 'U18 (၁၇ - ၁၈ နှစ်)' : 'U18 (17-18 yrs)'}</option>
+                <option value="Over 18">{lang === 'my' ? 'Over 18 (၁၈ နှစ်အထက်)' : 'Over 18 (> 18 yrs)'}</option>
               </select>
             </div>
 

@@ -558,6 +558,46 @@ export function matchAgeDivision(typedCategory: string, dateOfBirth: string): bo
   const raw = typedCategory.trim();
   const cleaned = raw.toLowerCase();
   const age = calculateAge(dateOfBirth);
+
+  // Normalize Burmese digits (၀-၉) to 0-9
+  const normalizedNumbers = cleaned.replace(/[၀-၉]/g, (d) =>
+    (d.charCodeAt(0) - 0x1040).toString()
+  );
+
+  const norm = normalizedNumbers.replace(/[\s\-_]+/g, '');
+
+  // Exact U-bracket divisions (U8, U10, U12, U14, U16, U18, Over 18)
+  if (norm === 'u8' || norm === 'under8' || norm === '<8' || norm === '<=8' || cleaned.includes('၈နှစ်နှင့်အောက်')) {
+    return age <= 8;
+  }
+  if (norm === 'u10' || norm === 'under10' || norm === '9-10' || norm === '9to10') {
+    return age >= 9 && age <= 10;
+  }
+  if (norm === 'u12' || norm === 'under12' || norm === '11-12' || norm === '11to12') {
+    return age >= 11 && age <= 12;
+  }
+  if (norm === 'u14' || norm === 'under14' || norm === '13-14' || norm === '13to14') {
+    return age >= 13 && age <= 14;
+  }
+  if (norm === 'u16' || norm === 'under16' || norm === '15-16' || norm === '15to16') {
+    return age >= 15 && age <= 16;
+  }
+  if (norm === 'u18' || norm === 'under18' || norm === '17-18' || norm === '17to18') {
+    return age >= 17 && age <= 18;
+  }
+  if (
+    norm === 'over18' ||
+    norm === '>18' ||
+    norm === '>=19' ||
+    norm === '18over' ||
+    norm === 'above18' ||
+    cleaned.includes('over 18') ||
+    cleaned.includes('၁၈ နှစ်အထက်') ||
+    cleaned.includes('၁၈နှစ်အထက်')
+  ) {
+    return age > 18;
+  }
+
   const cat = getAgeCategory(age).toLowerCase();
 
   // Burmese age category keywords
@@ -571,11 +611,6 @@ export function matchAgeDivision(typedCategory: string, dateOfBirth: string): bo
   if (cat.includes(cleaned) || cleaned.includes(cat)) {
     return true;
   }
-
-  // Normalize Burmese digits (၀-၉) to 0-9
-  const normalizedNumbers = cleaned.replace(/[၀-၉]/g, (d) =>
-    (d.charCodeAt(0) - 0x1040).toString()
-  );
 
   // Check if user entered range e.g. "12-14" or "12 - 14" or "12 to 14"
   const rangeMatch = normalizedNumbers.match(/^(\d{1,2})\s*[-–—to]+\s*(\d{1,2})$/);
