@@ -2,7 +2,8 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Player } from '@/types/player';
-import { BracketData, BracketMatch, DrawMode } from '@/types/bracket';
+import { BracketData, BracketMatch, CustomBoutPair, DrawMode } from '@/types/bracket';
+import { CustomPairingModal } from './CustomPairingModal';
 import {
   generateSingleEliminationBracket,
   advanceBracketWinner,
@@ -66,6 +67,29 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
   const [bracket, setBracket] = useState<BracketData | null>(null);
   const [showCustomSelector, setShowCustomSelector] = useState(false);
 
+  // Custom Pairing States
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [customPairs, setCustomPairs] = useState<CustomBoutPair[]>([]);
+  const [customDivisionTitle, setCustomDivisionTitle] = useState<string>(
+    lang === 'my' ? 'စိတ်ကြိုက် တွဲဆိုင်း ပွဲစဉ်များ' : 'Custom Exhibition Matchups'
+  );
+
+  // Load custom pairing from localStorage if saved
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('tkd_custom_pairing');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.pairs && Array.isArray(parsed.pairs) && parsed.pairs.length > 0) {
+          setCustomPairs(parsed.pairs);
+          if (parsed.divisionName) setCustomDivisionTitle(parsed.divisionName);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
   // Initialize selected players when division changes
   useEffect(() => {
     if (selectedDivision === 'ALL') {
@@ -90,8 +114,60 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
     return calculateBracketPowerOfTwo(activeCompetitors.length);
   }, [activeCompetitors.length]);
 
+  // Apply Custom Pairing from Modal
+  const handleApplyCustomPairing = useCallback((pairs: CustomBoutPair[], divisionName: string) => {
+    setCustomPairs(pairs);
+    setCustomDivisionTitle(divisionName);
+    setDrawMode('custom');
+    try {
+      localStorage.setItem('tkd_custom_pairing', JSON.stringify({ pairs, divisionName }));
+    } catch {
+      // ignore
+    }
+
+    try {
+      const newBracket = generateSingleEliminationBracket(
+        players,
+        divisionName,
+        'custom',
+        lang,
+        pairs
+      );
+      setBracket(newBracket);
+      confetti({
+        particleCount: 70,
+        spread: 60,
+        origin: { y: 0.7 }
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error creating custom bracket';
+      alert(msg);
+    }
+  }, [players, lang]);
+
   // Generate Bracket
   const handleGenerateBracket = useCallback(() => {
+    if (drawMode === 'custom') {
+      if (customPairs.length === 0) {
+        setIsCustomModalOpen(true);
+        return;
+      }
+      try {
+        const newBracket = generateSingleEliminationBracket(
+          players,
+          customDivisionTitle,
+          'custom',
+          lang,
+          customPairs
+        );
+        setBracket(newBracket);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Error generating custom bracket';
+        alert(msg);
+      }
+      return;
+    }
+
     if (activeCompetitors.length < 2) return;
     const divName =
       selectedDivision === 'ALL'
@@ -102,7 +178,7 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
 
     const newBracket = generateSingleEliminationBracket(activeCompetitors, divName, drawMode, lang);
     setBracket(newBracket);
-  }, [activeCompetitors, selectedDivision, drawMode, lang]);
+  }, [activeCompetitors, selectedDivision, drawMode, lang, customPairs, customDivisionTitle, players]);
 
   // Auto-generate bracket on initial load if players exist and no bracket is set
   useEffect(() => {
@@ -216,8 +292,17 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-1.5">
             <button
+              onClick={() => setIsCustomModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-sm shadow-purple-500/20 transition-all hover:scale-[1.02]"
+              title={t.customPairingTitle}
+            >
+              <Swords className="w-3.5 h-3.5" />
+              <span>{t.customPairingBtn}</span>
+            </button>
+
+            <button
               onClick={handleGenerateBracket}
-              disabled={activeCompetitors.length < 2}
+              disabled={drawMode !== 'custom' && activeCompetitors.length < 2}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-sm shadow-red-500/20 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:pointer-events-none"
             >
               <Shuffle className="w-3.5 h-3.5" />
@@ -306,13 +391,20 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
             </label>
             <select
               value={drawMode}
-              onChange={(e) => setDrawMode(e.target.value as DrawMode)}
+              onChange={(e) => {
+                const mode = e.target.value as DrawMode;
+                setDrawMode(mode);
+                if (mode === 'custom' && customPairs.length === 0) {
+                  setIsCustomModalOpen(true);
+                }
+              }}
               className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
             >
               <option value="weight-matched">⚖️ {t.drawWeightMatched}</option>
               <option value="random">🎲 {t.drawRandom}</option>
               <option value="seeded">🥋 {t.drawSeeded}</option>
               <option value="club-separated">🛡️ {t.drawClubSeparated}</option>
+              <option value="custom">🎯 {t.drawCustom}</option>
             </select>
           </div>
 
@@ -411,8 +503,37 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
         </div>
       </div>
 
+      {/* Custom Pairing Active Notification Banner */}
+      {drawMode === 'custom' && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/80 text-xs text-purple-900 dark:text-purple-200 font-bold shadow-2xs">
+          <div className="flex items-center gap-2.5">
+            <span className="p-2 rounded-xl bg-purple-600 text-white shadow-xs">
+              <Swords className="w-4 h-4" />
+            </span>
+            <div>
+              <div className="text-purple-950 dark:text-purple-100 font-black text-sm">
+                {lang === 'my'
+                  ? `စိတ်ကြိုက်တွဲဆိုင်း သတ်မှတ်ထားသည်: "${customDivisionTitle}"`
+                  : `Custom Pairing Active: "${customDivisionTitle}"`}
+              </div>
+              <div className="text-[11px] text-purple-700 dark:text-purple-400 font-medium">
+                {lang === 'my'
+                  ? `တွဲဆိုင်း ${customPairs.length} ပွဲ စီစဉ်ထားပါသည်`
+                  : `${customPairs.length} hand-picked bouts configured across tournament roster`}
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => setIsCustomModalOpen(true)}
+            className="self-start sm:self-auto px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-colors shadow-xs"
+          >
+            {lang === 'my' ? 'တွဲဆိုင်းများ ပြင်ဆင်မည် ✏️' : 'Edit Matchups ✏️'}
+          </button>
+        </div>
+      )}
+
       {/* Warning if less than 2 competitors */}
-      {activeCompetitors.length < 2 && (
+      {drawMode !== 'custom' && activeCompetitors.length < 2 && (
         <div className="p-8 text-center rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
           <Swords className="w-10 h-10 text-slate-400 mx-auto" />
           <h3 className="text-base font-bold text-slate-900 dark:text-white">
@@ -640,6 +761,18 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
           </div>
         </div>
       )}
+
+      {/* Custom Pairing Builder Modal */}
+      <CustomPairingModal
+        isOpen={isCustomModalOpen}
+        onClose={() => setIsCustomModalOpen(false)}
+        players={players}
+        initialCustomPairs={customPairs}
+        initialDivisionName={customDivisionTitle}
+        onApplyCustomPairing={handleApplyCustomPairing}
+        t={t}
+        lang={lang}
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { Player } from '@/types/player';
-import { BracketData, BracketMatch, BracketParticipant, BracketRound, DrawMode } from '@/types/bracket';
+import { BracketData, BracketMatch, BracketParticipant, BracketRound, CustomBoutPair, DrawMode } from '@/types/bracket';
 import { BELT_RANKS, getTaekwondoDivision } from './taekwondo';
 
 /**
@@ -179,15 +179,58 @@ export function generateSingleEliminationBracket(
   players: Player[],
   divisionName = 'Open Division',
   drawMode: DrawMode = 'random',
-  lang: 'en' | 'my' = 'en'
+  lang: 'en' | 'my' = 'en',
+  customPairs?: CustomBoutPair[]
 ): BracketData {
-  if (players.length < 2) {
-    throw new Error('At least 2 competitors are required to generate a tournament bracket.');
-  }
+  let bracketSize: number;
+  let totalRounds: number;
+  let byeCount: number;
+  let slots: (Player | null)[];
+  let seedOrder: number[];
+  let totalCompetitors = players.length;
 
-  const { bracketSize, totalRounds, byeCount } = calculateBracketPowerOfTwo(players.length);
-  const slots = prepareSeededPlayers(players, bracketSize, drawMode);
-  const seedOrder = getStandardSeedOrder(bracketSize);
+  if (drawMode === 'custom' && customPairs && customPairs.length > 0) {
+    const playerMap = new Map<string, Player>();
+    players.forEach((p) => playerMap.set(p.id, p));
+
+    const totalBouts = customPairs.length;
+    const neededSlots = Math.max(2, totalBouts * 2);
+    const power = Math.ceil(Math.log2(neededSlots));
+    bracketSize = Math.pow(2, power);
+    totalRounds = power;
+
+    slots = new Array(bracketSize).fill(null);
+    let activeCount = 0;
+
+    for (let i = 0; i < totalBouts && i * 2 + 1 < bracketSize; i++) {
+      const pair = customPairs[i];
+      const p1 = pair.player1Id ? playerMap.get(pair.player1Id) ?? null : null;
+      const p2 = pair.player2Id ? playerMap.get(pair.player2Id) ?? null : null;
+      slots[i * 2] = p1;
+      slots[i * 2 + 1] = p2;
+      if (p1) activeCount++;
+      if (p2) activeCount++;
+    }
+
+    if (activeCount < 2) {
+      throw new Error('At least 2 competitors are required for custom pairing.');
+    }
+
+    totalCompetitors = activeCount;
+    byeCount = bracketSize - activeCount;
+    seedOrder = Array.from({ length: bracketSize }, (_, i) => i + 1);
+  } else {
+    if (players.length < 2) {
+      throw new Error('At least 2 competitors are required to generate a tournament bracket.');
+    }
+
+    const calc = calculateBracketPowerOfTwo(players.length);
+    bracketSize = calc.bracketSize;
+    totalRounds = calc.totalRounds;
+    byeCount = calc.byeCount;
+    slots = prepareSeededPlayers(players, bracketSize, drawMode);
+    seedOrder = getStandardSeedOrder(bracketSize);
+  }
 
   // Initialize all rounds & matches
   const rounds: BracketRound[] = [];
@@ -302,7 +345,7 @@ export function generateSingleEliminationBracket(
 
   return {
     divisionName,
-    totalCompetitors: players.length,
+    totalCompetitors,
     bracketSize,
     byeCount,
     rounds,

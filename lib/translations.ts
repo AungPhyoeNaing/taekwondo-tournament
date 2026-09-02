@@ -143,6 +143,24 @@ export interface Translations {
   drawSeeded: string;
   drawClubSeparated: string;
   drawWeightMatched: string;
+  drawCustom: string;
+  customPairingBtn: string;
+  customPairingTitle: string;
+  customPairingSubtitle: string;
+  addBout: string;
+  removeBout: string;
+  boutLabel: (num: number) => string;
+  redFighter: string;
+  blueFighter: string;
+  swapCorners: string;
+  autoPairWeight: string;
+  autoPairBelt: string;
+  clearBouts: string;
+  applyCustomPairing: string;
+  selectFighter: string;
+  byeOption: string;
+  weightGap: string;
+  divisionTitleLabel: string;
   generateDraw: string;
   reShuffle: string;
   resetBracket: string;
@@ -319,6 +337,24 @@ export const translations: Record<Language, Translations> = {
     drawSeeded: 'Seeded Draw (Belt / Dan)',
     drawClubSeparated: 'Club Protection (Avoid Teammates)',
     drawWeightMatched: 'Fair Weight Match (Closest Weights)',
+    drawCustom: 'Custom Pairing (Hand-Picked)',
+    customPairingBtn: 'Custom Pairing',
+    customPairingTitle: 'Custom Match & Bracket Pairing',
+    customPairingSubtitle: 'Hand-pick athlete bouts across any weight, belt rank, or age category.',
+    addBout: '+ Add Bout',
+    removeBout: 'Remove',
+    boutLabel: (num) => `Bout #${num}`,
+    redFighter: 'HONG (Red Corner)',
+    blueFighter: 'CHONG (Blue Corner)',
+    swapCorners: 'Swap Red & Blue',
+    autoPairWeight: 'Auto-Pair by Closest Weight',
+    autoPairBelt: 'Auto-Pair by Belt Rank',
+    clearBouts: 'Clear All Bouts',
+    applyCustomPairing: 'Apply Custom Pairing to Bracket',
+    selectFighter: 'Select an athlete...',
+    byeOption: '— Assign BYE (Auto-Advance) —',
+    weightGap: 'Weight Difference',
+    divisionTitleLabel: 'Custom Division / Match Label',
     generateDraw: 'Generate Bracket',
     reShuffle: 'Shuffle Draw',
     resetBracket: 'Reset Matches',
@@ -493,6 +529,24 @@ export const translations: Record<Language, Translations> = {
     drawSeeded: 'ခါးပတ်အဆင့်လိုက် မျိုးစေ့ချခြင်း (Seeded Draw)',
     drawClubSeparated: 'ကလပ်အချင်းချင်း မတိုက်စေရန် ခွဲထုတ်ခြင်း (Club Protection)',
     drawWeightMatched: 'ဝိတ်အနီးစပ်ဆုံး ယှဉ်ပြိုင်မှု (Fair Weight Match)',
+    drawCustom: 'စိတ်ကြိုက်တွဲဆိုင်း သတ်မှတ်ခြင်း (Custom Pairing)',
+    customPairingBtn: 'စိတ်ကြိုက်တွဲဆိုင်း',
+    customPairingTitle: 'စိတ်ကြိုက် ပွဲစဉ်နှင့် တွဲဆိုင်း သတ်မှတ်ရန်',
+    customPairingSubtitle: 'မည်သည့် ဝိတ်တန်း၊ ခါးပတ်နှင့် အသက်အရွယ်မဆို မိမိစိတ်ကြိုက် ရွေးချယ်တွဲပေးနိုင်ပါသည်။',
+    addBout: '+ တွဲဆိုင်းထည့်မည်',
+    removeBout: 'ပယ်ဖျက်မည်',
+    boutLabel: (num) => `တွဲဆိုင်း #${num}`,
+    redFighter: 'ဟုန်း (အနီထောင့်)',
+    blueFighter: 'ချုန်း (အပြာထောင့်)',
+    swapCorners: 'ထောင့်ပြောင်းမည်',
+    autoPairWeight: 'ဝိတ်အနီးစပ်ဆုံး အလိုအလျောက်တွဲမည်',
+    autoPairBelt: 'ခါးပတ်တူ အလိုအလျောက်တွဲမည်',
+    clearBouts: 'တွဲဆိုင်းအားလုံး ရှင်းမည်',
+    applyCustomPairing: 'တွဲဆိုင်းများ အတည်ပြု ထုတ်ပေးမည်',
+    selectFighter: 'ကစားသမား ရွေးချယ်ပါ...',
+    byeOption: '— Bye သတ်မှတ်မည် (တိုက်ရိုက်တက်) —',
+    weightGap: 'ဝိတ်ကွာခြားချက်',
+    divisionTitleLabel: 'စိတ်ကြိုက် ဝိတ်တန်း / ပွဲစဉ်အမည်',
     generateDraw: 'တွဲဆိုင်း မဲခွဲထုတ်မည်',
     reShuffle: 'မဲပြန်နှိုက်မည်',
     resetBracket: 'ပွဲစဉ်များ ပြန်စမည်',

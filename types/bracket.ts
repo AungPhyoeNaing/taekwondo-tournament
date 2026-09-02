@@ -1,6 +1,12 @@
 import { Player } from './player';
 
-export type DrawMode = 'random' | 'seeded' | 'club-separated' | 'weight-matched';
+export type DrawMode = 'random' | 'seeded' | 'club-separated' | 'weight-matched' | 'custom';
+
+export interface CustomBoutPair {
+  id: string;
+  player1Id: string | null; // Red Corner (Hong)
+  player2Id: string | null; // Blue Corner (Chong) or null for BYE
+}
 
 export type CornerColor = 'hong' | 'chong'; // Hong = Red, Chong = Blue in Taekwondo
 

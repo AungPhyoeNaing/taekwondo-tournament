@@ -139,6 +139,29 @@ export default function ResultsPage() {
 
   const handleSelectDrawMode = (newMode: DrawMode) => {
     setDrawMode(newMode);
+    if (newMode === 'custom') {
+      try {
+        const saved = localStorage.getItem('tkd_custom_pairing');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.pairs && Array.isArray(parsed.pairs) && parsed.pairs.length > 0) {
+            const b = generateSingleEliminationBracket(
+              players,
+              parsed.divisionName || 'Custom Matchups',
+              'custom',
+              lang,
+              parsed.pairs
+            );
+            setBracket(b);
+            localStorage.setItem('tkd_active_bracket', JSON.stringify(b));
+            return;
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+
     const divPlayers = selectedDivision === 'ALL' ? players : divisionGroups[selectedDivision] || [];
     if (divPlayers.length >= 2) {
       const b = generateSingleEliminationBracket(divPlayers, selectedDivision, newMode, lang);
@@ -425,6 +448,7 @@ export default function ResultsPage() {
               <option value="random">🎲 {t.drawRandom}</option>
               <option value="seeded">🥋 {t.drawSeeded}</option>
               <option value="club-separated">🛡️ {t.drawClubSeparated}</option>
+              <option value="custom">🎯 {t.drawCustom}</option>
             </select>
           </div>
         </div>
