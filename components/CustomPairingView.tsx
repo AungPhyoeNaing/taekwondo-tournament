@@ -20,7 +20,8 @@ import {
   ArrowLeftRight,
   Printer,
   FileSpreadsheet,
-  Trophy
+  Trophy,
+  FileText
 } from 'lucide-react';
 
 interface CustomPairingViewProps {
@@ -29,6 +30,7 @@ interface CustomPairingViewProps {
   t: Translations;
   initialPairs?: CustomBoutPair[];
   initialTitle?: string;
+  onNavigateToResults?: () => void;
   onOpenAddModal?: () => void;
 }
 
@@ -48,7 +50,8 @@ export const CustomPairingView: React.FC<CustomPairingViewProps> = ({
   lang,
   t,
   initialPairs,
-  initialTitle
+  initialTitle,
+  onNavigateToResults
 }) => {
   const [divisionTitle, setDivisionTitle] = useState(
     initialTitle || (lang === 'my' ? 'စိတ်ကြိုက် တွဲဆိုင်း ပွဲစဉ်များ' : 'Custom Exhibition Matchups')
@@ -87,6 +90,7 @@ export const CustomPairingView: React.FC<CustomPairingViewProps> = ({
             'tkd_custom_pairing',
             JSON.stringify({ pairs: currentBouts, divisionName: currentTitle })
           );
+          localStorage.setItem('tkd_custom_bracket', JSON.stringify(b));
         } catch {
           // ignore
         }
@@ -306,6 +310,11 @@ export const CustomPairingView: React.FC<CustomPairingViewProps> = ({
     if (!bracket) return;
     const updated = advanceBracketWinner(bracket, match.id, winnerPlayerId);
     setBracket(updated);
+    try {
+      localStorage.setItem('tkd_custom_bracket', JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
     if (updated.champion && updated.champion.id === winnerPlayerId) {
       confetti({
         particleCount: 90,
@@ -438,6 +447,18 @@ export const CustomPairingView: React.FC<CustomPairingViewProps> = ({
               <RotateCcw className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{lang === 'my' ? 'ပြန်စမည်' : 'Reset'}</span>
             </button>
+
+            {onNavigateToResults && (
+              <button
+                type="button"
+                onClick={onNavigateToResults}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors shadow-sm"
+                title="View Paired Results & Print Sheet"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>{lang === 'my' ? 'ရလဒ်ဇယား & ပရင့် →' : 'Results & Print →'}</span>
+              </button>
+            )}
           </div>
         </div>
 

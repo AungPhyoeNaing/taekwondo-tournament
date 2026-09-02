@@ -14,6 +14,7 @@ import { PlayerIdCardModal } from '@/components/PlayerIdCardModal';
 import { DatabaseSetupModal } from '@/components/DatabaseSetupBanner';
 import { TournamentStats } from '@/components/TournamentStats';
 import { CustomPairingView } from '@/components/CustomPairingView';
+import { PairedResultsView } from '@/components/PairedResultsView';
 import { CustomBoutPair } from '@/types/bracket';
 import confetti from 'canvas-confetti';
 import { AlertCircle, CheckCircle2, UserPlus, Database, SearchX, Sparkles } from 'lucide-react';
@@ -35,7 +36,7 @@ export default function Home() {
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [idCardPlayer, setIdCardPlayer] = useState<Player | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
-  const [activeTab, setActiveTab] = useState<'roster' | 'custom-pairing'>('roster');
+  const [activeTab, setActiveTab] = useState<'roster' | 'custom-pairing' | 'paired-results'>('roster');
   const [pairingInitialData, setPairingInitialData] = useState<{
     pairs: CustomBoutPair[];
     title: string;
@@ -616,7 +617,14 @@ export default function Home() {
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-4">
 
-        {activeTab === 'custom-pairing' ? (
+        {activeTab === 'paired-results' ? (
+          /* Dedicated Paired Results View */
+          <PairedResultsView
+            players={players}
+            lang={lang}
+            onNavigateToPairing={() => setActiveTab('custom-pairing')}
+          />
+        ) : activeTab === 'custom-pairing' ? (
           /* Dedicated Custom Pairing Suite */
           <CustomPairingView
             players={players}
@@ -624,6 +632,7 @@ export default function Home() {
             t={t}
             initialPairs={pairingInitialData?.pairs}
             initialTitle={pairingInitialData?.title}
+            onNavigateToResults={() => setActiveTab('paired-results')}
             onOpenAddModal={() => {
               setEditingPlayer(null);
               setIsAddModalOpen(true);

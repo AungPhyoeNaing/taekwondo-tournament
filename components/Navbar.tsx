@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Shield, UserPlus, Database, Trophy, FileSpreadsheet, RefreshCw, Sun, Moon, Users, Swords } from 'lucide-react';
+import { Shield, UserPlus, Database, Trophy, FileSpreadsheet, RefreshCw, Sun, Moon, Users, Swords, FileText } from 'lucide-react';
 import { SupabaseHealthStatus } from '@/lib/supabase';
 import { Language, Translations } from '@/lib/translations';
 
@@ -18,8 +18,8 @@ interface NavbarProps {
   lang: Language;
   onToggleLanguage: (l: Language) => void;
   t: Translations;
-  activeTab: 'roster' | 'custom-pairing';
-  onSelectTab: (tab: 'roster' | 'custom-pairing') => void;
+  activeTab: 'roster' | 'custom-pairing' | 'paired-results';
+  onSelectTab: (tab: 'roster' | 'custom-pairing' | 'paired-results') => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -89,6 +89,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <Swords className="w-3.5 h-3.5" />
               <span>{t.customPairingBtn}</span>
+            </button>
+            <button
+              onClick={() => onSelectTab('paired-results')}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
+                activeTab === 'paired-results'
+                  ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-sm font-black'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>{lang === 'my' ? 'တွဲဆိုင်းရလဒ်များ' : 'Paired Results'}</span>
             </button>
           </div>
 
