@@ -48,6 +48,10 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
     onChangeFilters({ ...filters, query: e.target.value });
   };
 
+  const handleGenderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onChangeFilters({ ...filters, gender: e.target.value });
+  };
+
   const handleBeltChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onChangeFilters({ ...filters, belt: e.target.value });
   };
@@ -251,7 +255,23 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
       {/* Collapsible Filter Drawer */}
       {showAdvanced && (
         <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs animate-in slide-in-from-top-1 duration-150">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {/* Gender Dropdown */}
+            <div className="space-y-1">
+              <label className="block text-slate-500 dark:text-slate-400 font-bold text-[11px]">
+                {t.gender}
+              </label>
+              <select
+                value={filters.gender}
+                onChange={handleGenderChange}
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-1 focus:ring-red-500"
+              >
+                <option value="">{t.allGenders}</option>
+                <option value="Male">{t.male}</option>
+                <option value="Female">{t.female}</option>
+              </select>
+            </div>
+
             {/* Belt Color Dropdown */}
             <div className="space-y-1">
               <label className="block text-slate-500 dark:text-slate-400 font-bold text-[11px]">
