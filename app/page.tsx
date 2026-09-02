@@ -14,6 +14,7 @@ import { PlayerIdCardModal } from '@/components/PlayerIdCardModal';
 import { DatabaseSetupModal } from '@/components/DatabaseSetupBanner';
 import { TournamentStats } from '@/components/TournamentStats';
 import { CustomPairingView } from '@/components/CustomPairingView';
+import { CustomBoutPair } from '@/types/bracket';
 import confetti from 'canvas-confetti';
 import { AlertCircle, CheckCircle2, UserPlus, Database, SearchX, Sparkles } from 'lucide-react';
 
@@ -35,6 +36,10 @@ export default function Home() {
   const [idCardPlayer, setIdCardPlayer] = useState<Player | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [activeTab, setActiveTab] = useState<'roster' | 'custom-pairing'>('roster');
+  const [pairingInitialData, setPairingInitialData] = useState<{
+    pairs: CustomBoutPair[];
+    title: string;
+  } | null>(null);
 
   // Notification Toast state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -472,6 +477,75 @@ export default function Home() {
       });
   }, [players, filters]);
 
+  // Handle Pairing Filtered Athletes
+  const handlePairFilteredAthletes = () => {
+    if (filteredPlayers.length < 2) {
+      showToast(
+        lang === 'my'
+          ? 'တွဲဆိုင်းပြုလုပ်ရန် အနည်းဆုံး ကစားသမား ၂ ဦး လိုအပ်ပါသည်'
+          : 'At least 2 athletes required to generate matchups',
+        'error'
+      );
+      return;
+    }
+
+    // Sort athletes by closest weight to form sensible matches
+    const sorted = [...filteredPlayers].sort((a, b) => Number(a.weight) - Number(b.weight));
+    const newBouts: CustomBoutPair[] = [];
+    let pIdx = 0;
+    let boutNum = 1;
+    while (pIdx < sorted.length) {
+      const p1 = sorted[pIdx++];
+      const p2 = pIdx < sorted.length ? sorted[pIdx++] : null;
+      newBouts.push({
+        id: `bout-${boutNum++}`,
+        player1Id: p1.id,
+        player2Id: p2 ? p2.id : null // Odd count gets BYE
+      });
+    }
+
+    // Construct descriptive division title from active filters
+    const parts: string[] = [];
+    if (filters.gender) parts.push(filters.gender);
+    if (filters.ageCategory) parts.push(filters.ageCategory);
+    if (filters.club) parts.push(filters.club);
+    if (filters.minWeight || filters.maxWeight) {
+      parts.push(`${filters.minWeight || 0}-${filters.maxWeight || '+'}kg`);
+    }
+
+    let autoTitle = '';
+    if (parts.length > 0) {
+      autoTitle =
+        lang === 'my'
+          ? `${parts.join(' ')} စိတ်ကြိုက်တွဲဆိုင်း`
+          : `${parts.join(' ')} Custom Matchups`;
+    } else {
+      autoTitle =
+        lang === 'my'
+          ? `စစ်ထုတ်ထားသော ကစားသမား (${filteredPlayers.length}) ဦး တွဲဆိုင်း`
+          : `Filtered Athletes (${filteredPlayers.length}) Matchups`;
+    }
+
+    setPairingInitialData({ pairs: newBouts, title: autoTitle });
+    try {
+      localStorage.setItem(
+        'tkd_custom_pairing',
+        JSON.stringify({ pairs: newBouts, divisionName: autoTitle })
+      );
+    } catch {
+      // ignore
+    }
+
+    setActiveTab('custom-pairing');
+    confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+    showToast(
+      lang === 'my'
+        ? `ရွေးချယ်ထားသော ကစားသမား ${filteredPlayers.length} ဦးဖြင့် တွဲဆိုင်း ${newBouts.length} ပွဲ ဖန်တီးပြီးပါပြီ!`
+        : `Successfully paired ${filteredPlayers.length} athletes into ${newBouts.length} bouts!`,
+      'success'
+    );
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans selection:bg-red-600 selection:text-white transition-colors duration-200">
       {/* Toast Notification */}
@@ -548,6 +622,8 @@ export default function Home() {
             players={players}
             lang={lang}
             t={t}
+            initialPairs={pairingInitialData?.pairs}
+            initialTitle={pairingInitialData?.title}
             onOpenAddModal={() => {
               setEditingPlayer(null);
               setIsAddModalOpen(true);
@@ -570,6 +646,7 @@ export default function Home() {
               onChangeViewMode={setViewMode}
               t={t}
               lang={lang}
+              onPairFiltered={handlePairFilteredAthletes}
             />
 
             {/* Athletes List / Content Area */}

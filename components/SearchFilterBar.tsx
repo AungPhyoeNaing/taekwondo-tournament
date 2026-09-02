@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, SlidersHorizontal, X, ArrowUpDown, LayoutGrid, Table, RotateCcw } from 'lucide-react';
+import { Search, SlidersHorizontal, X, ArrowUpDown, LayoutGrid, Table, RotateCcw, Swords } from 'lucide-react';
 import { DEFAULT_BELTS } from '@/lib/taekwondo';
 import { PlayerFilters } from '@/types/player';
 import { Language, Translations } from '@/lib/translations';
@@ -16,6 +16,7 @@ interface SearchFilterBarProps {
   onChangeViewMode: (mode: 'grid' | 'table') => void;
   t: Translations;
   lang: Language;
+  onPairFiltered?: () => void;
 }
 
 const BURMESE_BELTS: Record<string, string> = {
@@ -38,7 +39,8 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
   viewMode,
   onChangeViewMode,
   t,
-  lang
+  lang,
+  onPairFiltered
 }) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -138,8 +140,21 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           })}
         </div>
 
-        {/* Secondary Actions: Filter Button & View Mode */}
+        {/* Secondary Actions: Pair Button, Filter Button & View Mode */}
         <div className="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-end flex-shrink-0">
+          {/* Pair Filtered Athletes Button */}
+          {onPairFiltered && (
+            <button
+              onClick={onPairFiltered}
+              disabled={totalFiltered < 2}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-sm shadow-purple-500/20 transition-all hover:scale-[1.02] disabled:opacity-40 disabled:pointer-events-none flex-shrink-0"
+              title={lang === 'my' ? 'ဤစစ်ထုတ်ထားသော ကစားသမားများဖြင့် တွဲဆိုင်းပြုလုပ်မည်' : 'Pair these filtered athletes'}
+            >
+              <Swords className="w-3.5 h-3.5" />
+              <span>{lang === 'my' ? `တွဲဆိုင်းပြုလုပ်မည် (${totalFiltered})` : `Pair Athletes (${totalFiltered})`}</span>
+            </button>
+          )}
+
           {/* Filters Toggle Button */}
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
@@ -185,6 +200,41 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Active Filter Summary Bar with Quick Send to Pairing */}
+      {(activeFilterCount > 0 || filters.query) && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 px-3.5 rounded-xl bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 text-xs font-semibold text-purple-900 dark:text-purple-200 animate-in fade-in duration-150">
+          <div className="flex items-center gap-2">
+            <span className="p-1 rounded-md bg-purple-600 text-white shadow-2xs">
+              <Swords className="w-3.5 h-3.5" />
+            </span>
+            <span>
+              {lang === 'my'
+                ? `စစ်ထုတ်ထားသော ကစားသမား ${totalFiltered} ဦး တွေ့ရှိပါသည်`
+                : `${totalFiltered} athletes found matching your filters`}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            <button
+              onClick={clearAllFilters}
+              className="px-2 py-1 text-slate-500 hover:text-slate-900 dark:hover:text-white text-xs font-bold transition-colors"
+            >
+              {lang === 'my' ? 'စစ်ထုတ်မှု ရှင်းမည်' : 'Clear Filters'}
+            </button>
+            {onPairFiltered && (
+              <button
+                onClick={onPairFiltered}
+                disabled={totalFiltered < 2}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-xs transition-transform hover:scale-105 disabled:opacity-40 disabled:pointer-events-none"
+              >
+                <Swords className="w-3 h-3" />
+                <span>{lang === 'my' ? 'တွဲဆိုင်း စတင်မည် →' : 'Send to Pairing →'}</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Collapsible Filter Drawer */}
       {showAdvanced && (

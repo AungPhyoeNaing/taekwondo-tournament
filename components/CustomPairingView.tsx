@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Player } from '@/types/player';
 import { BracketData, BracketMatch, CustomBoutPair } from '@/types/bracket';
 import { Language, Translations } from '@/lib/translations';
-import { calculateAge, getBeltStyle } from '@/lib/taekwondo';
+import { calculateAge, getBeltStyle, matchAgeDivision } from '@/lib/taekwondo';
 import {
   generateSingleEliminationBracket,
   advanceBracketWinner
@@ -27,6 +27,8 @@ interface CustomPairingViewProps {
   players: Player[];
   lang: Language;
   t: Translations;
+  initialPairs?: CustomBoutPair[];
+  initialTitle?: string;
   onOpenAddModal?: () => void;
 }
 
@@ -44,10 +46,12 @@ const BURMESE_BELTS: Record<string, string> = {
 export const CustomPairingView: React.FC<CustomPairingViewProps> = ({
   players,
   lang,
-  t
+  t,
+  initialPairs,
+  initialTitle
 }) => {
   const [divisionTitle, setDivisionTitle] = useState(
-    lang === 'my' ? 'စိတ်ကြိုက် တွဲဆိုင်း ပွဲစဉ်များ' : 'Custom Exhibition Matchups'
+    initialTitle || (lang === 'my' ? 'စိတ်ကြိုက် တွဲဆိုင်း ပွဲစဉ်များ' : 'Custom Exhibition Matchups')
   );
 
   const [bouts, setBouts] = useState<CustomBoutPair[]>([]);
@@ -59,31 +63,6 @@ export const CustomPairingView: React.FC<CustomPairingViewProps> = ({
     players.forEach((p) => map.set(p.id, p));
     return map;
   }, [players]);
-
-  // Load saved custom pairing from localStorage on mount
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('tkd_custom_pairing');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.pairs && Array.isArray(parsed.pairs) && parsed.pairs.length > 0) {
-          setBouts(parsed.pairs);
-          if (parsed.divisionName) setDivisionTitle(parsed.divisionName);
-          return;
-        }
-      }
-    } catch {
-      // ignore
-    }
-
-    // Default to 4 bouts (8 fighters) or 2 bouts
-    const defaultCount = players.length >= 8 ? 4 : players.length >= 4 ? 2 : 1;
-    const initialList: CustomBoutPair[] = [];
-    for (let i = 0; i < defaultCount; i++) {
-      initialList.push({ id: `bout-${i + 1}`, player1Id: null, player2Id: null });
-    }
-    setBouts(initialList);
-  }, [players.length]);
 
   // Generate bracket automatically when bouts change (if at least 2 fighters assigned)
   const syncBracketFromBouts = useCallback(
@@ -117,6 +96,38 @@ export const CustomPairingView: React.FC<CustomPairingViewProps> = ({
     },
     [players, lang]
   );
+
+  // Load initialPairs or saved custom pairing from localStorage on mount
+  useEffect(() => {
+    if (initialPairs && initialPairs.length > 0) {
+      setBouts(initialPairs);
+      if (initialTitle) setDivisionTitle(initialTitle);
+      syncBracketFromBouts(initialPairs, initialTitle || divisionTitle);
+      return;
+    }
+
+    try {
+      const saved = localStorage.getItem('tkd_custom_pairing');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.pairs && Array.isArray(parsed.pairs) && parsed.pairs.length > 0) {
+          setBouts(parsed.pairs);
+          if (parsed.divisionName) setDivisionTitle(parsed.divisionName);
+          return;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    // Default to 4 bouts (8 fighters) or 2 bouts
+    const defaultCount = players.length >= 8 ? 4 : players.length >= 4 ? 2 : 1;
+    const initialList: CustomBoutPair[] = [];
+    for (let i = 0; i < defaultCount; i++) {
+      initialList.push({ id: `bout-${i + 1}`, player1Id: null, player2Id: null });
+    }
+    setBouts(initialList);
+  }, [initialPairs, initialTitle, players.length, syncBracketFromBouts, divisionTitle]);
 
   // Sync on initial load
   useEffect(() => {
@@ -248,6 +259,34 @@ export const CustomPairingView: React.FC<CustomPairingViewProps> = ({
     setBouts(next);
     syncBracketFromBouts(next, divisionTitle);
     confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
+  };
+
+  // Quick helper to load an entire division into custom bouts
+  const handleLoadDivisionBouts = (divName: string) => {
+    if (!divName) return;
+    const matched = players.filter((p) => matchAgeDivision(divName, p.date_of_birth));
+    if (matched.length === 0) return;
+
+    const sorted = [...matched].sort((a, b) => Number(a.weight) - Number(b.weight));
+    const newBouts: CustomBoutPair[] = [];
+    let pIdx = 0;
+    let bIdx = 1;
+    while (pIdx < sorted.length) {
+      const p1 = sorted[pIdx++];
+      const p2 = pIdx < sorted.length ? sorted[pIdx++] : null;
+      newBouts.push({
+        id: `bout-${bIdx++}`,
+        player1Id: p1.id,
+        player2Id: p2 ? p2.id : null
+      });
+    }
+
+    const newTitle =
+      lang === 'my' ? `${divName} စိတ်ကြိုက်တွဲဆိုင်း ပွဲစဉ်များ` : `${divName} Division Matchups`;
+    setDivisionTitle(newTitle);
+    setBouts(newBouts);
+    syncBracketFromBouts(newBouts, newTitle);
+    confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
   };
 
   // Clear All
@@ -471,6 +510,32 @@ export const CustomPairingView: React.FC<CustomPairingViewProps> = ({
                 <Sparkles className="w-3.5 h-3.5 text-purple-500" />
                 <span>{t.autoPairBelt}</span>
               </button>
+
+              {/* Load Division Preset */}
+              <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1 text-xs">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                  {lang === 'my' ? '🥋 အသက်တန်း တွဲဆိုင်း:' : '🥋 Load Division:'}
+                </span>
+                <select
+                  onChange={(e) => {
+                    handleLoadDivisionBouts(e.target.value);
+                    e.target.value = '';
+                  }}
+                  defaultValue=""
+                  className="bg-transparent text-xs font-bold text-purple-600 dark:text-purple-400 focus:outline-none cursor-pointer"
+                >
+                  <option value="" disabled>
+                    {lang === 'my' ? '-- ရွေးချယ်ပါ --' : '-- Choose --'}
+                  </option>
+                  <option value="U8">U8 (4 athletes)</option>
+                  <option value="U10">U10 (5 athletes)</option>
+                  <option value="U12">U12 (3 athletes)</option>
+                  <option value="U14">U14 (4 athletes)</option>
+                  <option value="U16">U16 (5 athletes)</option>
+                  <option value="U18">U18 (2 athletes)</option>
+                  <option value="Over 18">Over 18 (11 athletes)</option>
+                </select>
+              </div>
 
               <button
                 type="button"
