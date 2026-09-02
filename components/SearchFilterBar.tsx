@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, SlidersHorizontal, X, ArrowUpDown, LayoutGrid, Table, RotateCcw, Swords } from 'lucide-react';
+import { Search, SlidersHorizontal, X, ArrowUpDown, LayoutGrid, Table, RotateCcw, Swords, Scale } from 'lucide-react';
 import { DEFAULT_BELTS } from '@/lib/taekwondo';
 import { PlayerFilters } from '@/types/player';
 import { Language, Translations } from '@/lib/translations';
@@ -67,6 +67,18 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
 
   const toggleSortOrder = () => {
     onChangeFilters({ ...filters, sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc' });
+  };
+
+  const handleMinWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChangeFilters({ ...filters, minWeight: e.target.value });
+  };
+
+  const handleMaxWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChangeFilters({ ...filters, maxWeight: e.target.value });
+  };
+
+  const handleSetWeightPreset = (min: string, max: string) => {
+    onChangeFilters({ ...filters, minWeight: min, maxWeight: max });
   };
 
   const clearAllFilters = () => {
@@ -323,6 +335,102 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
                 >
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Weight Range Filter Row */}
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-2.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <label className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-bold text-[11px]">
+                <Scale className="w-3.5 h-3.5 text-amber-500" />
+                <span>{lang === 'my' ? 'ဝိတ်တန်း သတ်မှတ်ချက် (ကီလိုဂရမ် - Range)' : 'Weight Range Filter (kg)'}</span>
+                {(filters.minWeight || filters.maxWeight) && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 font-extrabold border border-amber-300 dark:border-amber-800/50">
+                    {filters.minWeight || '0'} - {filters.maxWeight || '∞'} kg
+                  </span>
+                )}
+              </label>
+
+              {/* Quick Weight Category Presets */}
+              <div className="flex items-center gap-1 flex-wrap">
+                {[
+                  { label: '< 30kg', min: '', max: '30' },
+                  { label: '30 - 45kg', min: '30', max: '45' },
+                  { label: '45 - 55kg', min: '45', max: '55' },
+                  { label: '55 - 65kg', min: '55', max: '65' },
+                  { label: '> 65kg', min: '65', max: '' }
+                ].map((preset) => {
+                  const isActive = filters.minWeight === preset.min && filters.maxWeight === preset.max;
+                  return (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => handleSetWeightPreset(preset.min, preset.max)}
+                      className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all border ${
+                        isActive
+                          ? 'bg-amber-500 text-white border-amber-500 shadow-2xs font-black'
+                          : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  );
+                })}
+                {(filters.minWeight || filters.maxWeight) && (
+                  <button
+                    type="button"
+                    onClick={() => handleSetWeightPreset('', '')}
+                    className="text-[10px] font-bold text-red-500 hover:underline px-1"
+                  >
+                    {lang === 'my' ? 'ဖျက်မည်' : 'Clear'}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Min & Max Inputs */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 items-center">
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">
+                  Min
+                </span>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={filters.minWeight}
+                  onChange={handleMinWeightChange}
+                  placeholder="e.g. 35"
+                  className="w-full pl-10 pr-7 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                />
+                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-bold">
+                  kg
+                </span>
+              </div>
+
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">
+                  Max
+                </span>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={filters.maxWeight}
+                  onChange={handleMaxWeightChange}
+                  placeholder="e.g. 55"
+                  className="w-full pl-10 pr-7 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                />
+                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-bold">
+                  kg
+                </span>
+              </div>
+
+              <div className="col-span-2 text-[11px] text-slate-400 font-medium">
+                {lang === 'my'
+                  ? 'အနည်းဆုံးနှင့် အများဆုံး ကီလို ရိုက်ထည့်ပါ သို့မဟုတ် အမြန်ရွေးချယ်ခလုတ်များကို နှိပ်ပါ'
+                  : 'Type custom min/max weight (kg) or select a quick weight category preset'}
               </div>
             </div>
           </div>
