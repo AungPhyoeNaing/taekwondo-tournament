@@ -15,7 +15,7 @@ import { DatabaseSetupModal } from '@/components/DatabaseSetupBanner';
 import { TournamentStats } from '@/components/TournamentStats';
 import { TournamentBracket } from '@/components/TournamentBracket';
 import confetti from 'canvas-confetti';
-import { AlertCircle, CheckCircle2, UserPlus, Database, SearchX, Sparkles, Swords } from 'lucide-react';
+import { AlertCircle, CheckCircle2, UserPlus, Database, SearchX, Sparkles } from 'lucide-react';
 
 export default function Home() {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -540,51 +540,7 @@ export default function Home() {
       )}
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
-        {/* Tournament Hero Banner */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-white via-red-50/50 to-white dark:from-slate-900 dark:via-red-950/40 dark:to-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm dark:shadow-2xl transition-colors">
-          <div className="relative z-10 max-w-3xl space-y-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-red-100 dark:bg-red-600/20 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-500/30">
-              {t.heroTag}
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight uppercase">
-              {t.heroTitle}
-            </h2>
-            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-normal leading-relaxed">
-              {t.heroDesc}
-            </p>
-            <div className="pt-2 flex flex-wrap items-center gap-3">
-              <button
-                onClick={() => {
-                  setEditingPlayer(null);
-                  setIsAddModalOpen(true);
-                }}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-sm shadow-md shadow-red-500/20 transition-all hover:scale-[1.02]"
-              >
-                <UserPlus className="w-4 h-4" />
-                {t.registerCompetitorBtn}
-              </button>
-
-              <button
-                onClick={() => setActiveTab('bracket')}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 text-sm font-bold transition-all shadow-sm"
-              >
-                <Swords className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                {t.bracketNav}
-              </button>
-
-              <button
-                onClick={handleExportCsv}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold transition-colors shadow-sm"
-              >
-                {t.downloadWeighInBtn}
-              </button>
-            </div>
-          </div>
-
-          {/* Decorative background visual */}
-          <div className="absolute -right-10 -bottom-10 w-80 h-80 bg-red-500/10 dark:bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
-        </div>
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-4">
 
         {activeTab === 'bracket' ? (
           /* Tournament Bracket View */

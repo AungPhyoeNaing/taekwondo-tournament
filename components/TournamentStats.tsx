@@ -29,97 +29,92 @@ export const TournamentStats: React.FC<TournamentStatsProps> = ({
     : '0.0';
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-      {/* Total Athletes */}
-      <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm dark:shadow-lg transition-colors">
-        <div className="flex items-center justify-between">
+    <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-3 sm:p-4 shadow-sm transition-colors">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800/80">
+        {/* Total Athletes */}
+        <div className="flex items-center gap-3 pt-2 sm:pt-0 sm:px-3 first:pt-0 first:px-0">
+          <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-100 dark:border-red-900/40 text-red-600 dark:text-red-400 flex-shrink-0">
+            <Users className="w-4 h-4" />
+          </div>
           <div>
-            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <div className="flex items-baseline gap-2">
+              <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                {total}
+              </span>
+              <span className="text-[11px] font-semibold text-slate-400">
+                {maleCount}M • {femaleCount}F
+              </span>
+            </div>
+            <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {t.totalAthletes}
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">
-              {total}
-            </div>
-          </div>
-          <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 text-red-600 dark:text-red-400">
-            <Users className="w-5 h-5" />
           </div>
         </div>
-        <div className="mt-2 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-          <span className="text-blue-600 dark:text-blue-400 font-bold">{maleCount} M</span>
-          <span>•</span>
-          <span className="text-pink-600 dark:text-pink-400 font-bold">{femaleCount} F</span>
-        </div>
-      </div>
 
-      {/* Participating Clubs */}
-      <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm dark:shadow-lg transition-colors">
-        <div className="flex items-center justify-between">
+        {/* Participating Clubs */}
+        <div className="flex items-center gap-3 pt-2 sm:pt-0 sm:px-3">
+          <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-100 dark:border-amber-900/40 text-amber-600 dark:text-amber-400 flex-shrink-0">
+            <Building2 className="w-4 h-4" />
+          </div>
           <div>
-            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+              {uniqueClubs}
+            </span>
+            <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {t.activeTeams}
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">
-              {uniqueClubs}
-            </div>
-          </div>
-          <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 text-amber-600 dark:text-amber-400">
-            <Building2 className="w-5 h-5" />
           </div>
         </div>
-        <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
-          {uniqueClubs} clubs registered
-        </div>
-      </div>
 
-      {/* Black / Poom Belts */}
-      <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm dark:shadow-lg transition-colors">
-        <div className="flex items-center justify-between">
+        {/* Black / Poom Belts */}
+        <div className="flex items-center gap-3 pt-2 sm:pt-0 sm:px-3">
+          <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-amber-500 dark:text-yellow-400 flex-shrink-0">
+            <Award className="w-4 h-4" />
+          </div>
           <div>
-            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                {blackBelts}
+              </span>
+              <span className="text-[11px] font-medium text-slate-400">
+                ({total > 0 ? Math.round((blackBelts / total) * 100) : 0}%)
+              </span>
+            </div>
+            <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {t.danPoomRanks}
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">
-              {blackBelts}
-            </div>
-          </div>
-          <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-amber-500 dark:text-yellow-400">
-            <Award className="w-5 h-5" />
           </div>
         </div>
-        <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
-          {total > 0 ? Math.round((blackBelts / total) * 100) : 0}% {t.eliteBlackBelts}
-        </div>
-      </div>
 
-      {/* Avg Weight & Quick Action */}
-      <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm dark:shadow-lg flex flex-col justify-between transition-colors">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {t.averageWeight}
+        {/* Avg Weight */}
+        <div className="flex items-center justify-between gap-3 pt-2 sm:pt-0 sm:px-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900/40 text-blue-600 dark:text-blue-400 flex-shrink-0">
+              <Scale className="w-4 h-4" />
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">
-              {averageWeight} <span className="text-sm font-semibold text-slate-400">kg</span>
+            <div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                  {averageWeight}
+                </span>
+                <span className="text-xs font-semibold text-slate-400">kg</span>
+              </div>
+              <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                {t.averageWeight}
+              </div>
             </div>
           </div>
-          <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800/60 text-blue-600 dark:text-blue-400">
-            <Scale className="w-5 h-5" />
-          </div>
+
+          {total === 0 && (
+            <button
+              onClick={onAddSampleData}
+              className="flex items-center gap-1 text-xs font-bold text-red-600 dark:text-red-400 hover:underline"
+            >
+              <Flame className="w-3.5 h-3.5" />
+              <span>{t.loadSampleRoster}</span>
+            </button>
+          )}
         </div>
-        {total === 0 ? (
-          <button
-            onClick={onAddSampleData}
-            className="mt-2 flex items-center gap-1.5 text-xs font-bold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
-          >
-            <Flame className="w-3.5 h-3.5" />
-            <span>{t.loadSampleRoster}</span>
-          </button>
-        ) : (
-          <div className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
-            <span>{t.weighInActive}</span>
-          </div>
-        )}
       </div>
     </div>
   );
