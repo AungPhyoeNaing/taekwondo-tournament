@@ -65,6 +65,34 @@ export function prepareSeededPlayers(players: Player[], bracketSize: number, dra
   const seedOrder = getStandardSeedOrder(bracketSize);
   const n = players.length;
 
+  if (drawMode === 'weight-matched') {
+    const sorted = [...players].sort((a, b) => Number(a.weight) - Number(b.weight));
+    const totalMatches = bracketSize / 2;
+    const byeCount = bracketSize - n;
+    const slots: (Player | null)[] = new Array(bracketSize).fill(null);
+
+    const isByeMatch: boolean[] = new Array(totalMatches).fill(false);
+    if (byeCount > 0) {
+      for (let b = 0; b < byeCount; b++) {
+        const matchIdx = b % 2 === 0 ? totalMatches - 1 - Math.floor(b / 2) : Math.floor(b / 2);
+        isByeMatch[matchIdx] = true;
+      }
+    }
+
+    let pIdx = 0;
+    for (let m = 0; m < totalMatches; m++) {
+      if (isByeMatch[m]) {
+        slots[m * 2] = sorted[pIdx++] ?? null;
+        slots[m * 2 + 1] = null; // BYE
+      } else {
+        slots[m * 2] = sorted[pIdx++] ?? null;
+        slots[m * 2 + 1] = sorted[pIdx++] ?? null;
+      }
+    }
+
+    return slots;
+  }
+
   let orderedPlayers: Player[] = [];
 
   if (drawMode === 'seeded') {
@@ -178,8 +206,15 @@ export function generateSingleEliminationBracket(
         // Round 1 matches come directly from prepared slots
         const p1 = slots[m * 2];
         const p2 = slots[m * 2 + 1];
-        const seed1 = seedOrder[m * 2];
-        const seed2 = seedOrder[m * 2 + 1];
+        const weightSorted = drawMode === 'weight-matched'
+          ? [...players].sort((a, b) => Number(a.weight) - Number(b.weight))
+          : null;
+        const seed1 = weightSorted && p1
+          ? weightSorted.findIndex((x) => x.id === p1.id) + 1
+          : seedOrder[m * 2];
+        const seed2 = weightSorted && p2
+          ? weightSorted.findIndex((x) => x.id === p2.id) + 1
+          : seedOrder[m * 2 + 1];
 
         const isP1Bye = p1 === null;
         const isP2Bye = p2 === null;
@@ -196,14 +231,14 @@ export function generateSingleEliminationBracket(
         const participant1: BracketParticipant = {
           player: p1,
           isBye: isP1Bye,
-          seed: seed1 <= players.length ? seed1 : undefined,
+          seed: p1 && seed1 <= players.length ? seed1 : undefined,
           corner: 'hong' // Red corner
         };
 
         const participant2: BracketParticipant = {
           player: p2,
           isBye: isP2Bye,
-          seed: seed2 <= players.length ? seed2 : undefined,
+          seed: p2 && seed2 <= players.length ? seed2 : undefined,
           corner: 'chong' // Blue corner
         };
 
@@ -446,19 +481,62 @@ export function resetBracketMatch(bracket: BracketData, matchId: string): Bracke
 }
 
 /**
- * Groups players by calculated WT division for quick tournament draw selection.
+ * Groups players into:
+ * 1. Primary Age & Gender Divisions (e.g. "Senior Female", "Senior Male", "Cadet Female", etc.)
+ * 2. Specific WT Weight Classes (e.g. "Senior Female - Finweight (-46 kg)", etc.)
  */
 export function groupPlayersByDivision(players: Player[]): Record<string, Player[]> {
   const groups: Record<string, Player[]> = {};
 
+  // 1. Primary Age & Gender Category Groups
   for (const player of players) {
     const div = getTaekwondoDivision(Number(player.weight), player.gender, player.date_of_birth);
-    const key = `${div.category} ${player.gender} - ${div.divisionName} (${div.weightClass})`;
-    if (!groups[key]) {
-      groups[key] = [];
+    const primaryKey = `${div.category} ${player.gender}`;
+    if (!groups[primaryKey]) {
+      groups[primaryKey] = [];
     }
-    groups[key].push(player);
+    groups[primaryKey].push(player);
+  }
+
+  // 2. Specific WT Weight Class Groups
+  for (const player of players) {
+    const div = getTaekwondoDivision(Number(player.weight), player.gender, player.date_of_birth);
+    const weightKey = `${div.category} ${player.gender} - ${div.divisionName} (${div.weightClass})`;
+    if (!groups[weightKey]) {
+      groups[weightKey] = [];
+    }
+    groups[weightKey].push(player);
   }
 
   return groups;
 }
+
+/**
+ * Returns division keys sorted logically:
+ * - Primary Age & Gender categories with >= 2 competitors first (sorted by athlete count descending)
+ * - Specific Weight classes with >= 2 competitors next
+ * - Single-competitor divisions last
+ */
+export function getSortedDivisionKeys(groups: Record<string, Player[]>): string[] {
+  return Object.keys(groups).sort((a, b) => {
+    const isPrimaryA = !a.includes(' - ');
+    const isPrimaryB = !b.includes(' - ');
+    const countA = groups[a]?.length || 0;
+    const countB = groups[b]?.length || 0;
+
+    // Primary categories first
+    if (isPrimaryA && !isPrimaryB) return -1;
+    if (!isPrimaryA && isPrimaryB) return 1;
+
+    // Divisions with >= 2 athletes before single-athlete divisions
+    const validA = countA >= 2 ? 1 : 0;
+    const validB = countB >= 2 ? 1 : 0;
+    if (validB !== validA) return validB - validA;
+
+    // Sort by count descending
+    if (countB !== countA) return countB - countA;
+
+    return a.localeCompare(b);
+  });
+}
+

@@ -1,6 +1,6 @@
 import { Player } from './player';
 
-export type DrawMode = 'random' | 'seeded' | 'club-separated';
+export type DrawMode = 'random' | 'seeded' | 'club-separated' | 'weight-matched';
 
 export type CornerColor = 'hong' | 'chong'; // Hong = Red, Chong = Blue in Taekwondo
 

@@ -8,6 +8,7 @@ import {
   advanceBracketWinner,
   resetBracketMatch,
   groupPlayersByDivision,
+  getSortedDivisionKeys,
   calculateBracketPowerOfTwo
 } from '@/lib/bracket';
 import { getBeltStyle } from '@/lib/taekwondo';
@@ -46,14 +47,22 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
 }) => {
   // Divisions grouped
   const divisionGroups = useMemo(() => groupPlayersByDivision(players), [players]);
-  const divisionKeys = useMemo(() => Object.keys(divisionGroups).sort(), [divisionGroups]);
+  const divisionKeys = useMemo(() => getSortedDivisionKeys(divisionGroups), [divisionGroups]);
+
+  // Determine ideal initial default division (first category with >= 2 athletes)
+  const initialDefaultDivision = useMemo(() => {
+    if (preselectedDivision && divisionGroups[preselectedDivision]) {
+      return preselectedDivision;
+    }
+    const keys = getSortedDivisionKeys(divisionGroups);
+    const valid = keys.find((k) => (divisionGroups[k]?.length || 0) >= 2);
+    return valid || (keys.length > 0 ? keys[0] : 'ALL');
+  }, [preselectedDivision, divisionGroups]);
 
   // Selection states
-  const [selectedDivision, setSelectedDivision] = useState<string>(
-    preselectedDivision || (divisionKeys.length > 0 ? divisionKeys[0] : 'ALL')
-  );
+  const [selectedDivision, setSelectedDivision] = useState<string>(initialDefaultDivision);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
-  const [drawMode, setDrawMode] = useState<DrawMode>('random');
+  const [drawMode, setDrawMode] = useState<DrawMode>('weight-matched');
   const [bracket, setBracket] = useState<BracketData | null>(null);
   const [showCustomSelector, setShowCustomSelector] = useState(false);
 
@@ -63,13 +72,13 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
       setSelectedPlayerIds(players.map((p) => p.id));
     } else if (divisionGroups[selectedDivision]) {
       setSelectedPlayerIds(divisionGroups[selectedDivision].map((p) => p.id));
-    } else if (divisionKeys.length > 0) {
-      setSelectedDivision(divisionKeys[0]);
-      setSelectedPlayerIds(divisionGroups[divisionKeys[0]]?.map((p) => p.id) || []);
+    } else if (initialDefaultDivision) {
+      setSelectedDivision(initialDefaultDivision);
+      setSelectedPlayerIds(divisionGroups[initialDefaultDivision]?.map((p) => p.id) || []);
     } else {
       setSelectedPlayerIds(players.map((p) => p.id));
     }
-  }, [selectedDivision, divisionGroups, divisionKeys, players]);
+  }, [selectedDivision, divisionGroups, initialDefaultDivision, players]);
 
   // Selected player objects
   const activeCompetitors = useMemo(() => {
@@ -273,14 +282,25 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
               onChange={(e) => setSelectedDivision(e.target.value)}
               className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
             >
-              <option value="ALL">
-                🏆 {t.allAthletes} ({players.length} {lang === 'my' ? 'ဦး' : 'athletes'})
-              </option>
-              {divisionKeys.map((key) => (
-                <option key={key} value={key}>
-                  🥋 {key} ({divisionGroups[key].length} {lang === 'my' ? 'ဦး' : 'athletes'})
+              <optgroup label={lang === 'my' ? '🥋 အဓိက အသက်နှင့် ကျား/မ အုပ်စုများ' : '🥋 Age & Gender Divisions'}>
+                {divisionKeys.filter((k) => !k.includes(' - ')).map((key) => (
+                  <option key={key} value={key}>
+                    🥋 {key} ({divisionGroups[key].length} {lang === 'my' ? 'ဦး' : 'athletes'})
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label={lang === 'my' ? '⚖️ သီးသန့် ဝိတ်တန်းများ' : '⚖️ Specific Weight Classes'}>
+                {divisionKeys.filter((k) => k.includes(' - ')).map((key) => (
+                  <option key={key} value={key}>
+                    ⚖️ {key} ({divisionGroups[key].length} {lang === 'my' ? 'ဦး' : 'athletes'})
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label={lang === 'my' ? '🏆 ကစားသမား အားလုံး' : '🏆 Open Tournament'}>
+                <option value="ALL">
+                  🏆 {t.allAthletes} ({players.length} {lang === 'my' ? 'ဦး' : 'athletes'})
                 </option>
-              ))}
+              </optgroup>
             </select>
           </div>
 
@@ -294,6 +314,7 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
               onChange={(e) => setDrawMode(e.target.value as DrawMode)}
               className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
             >
+              <option value="weight-matched">⚖️ {t.drawWeightMatched}</option>
               <option value="random">🎲 {t.drawRandom}</option>
               <option value="seeded">🥋 {t.drawSeeded}</option>
               <option value="club-separated">🛡️ {t.drawClubSeparated}</option>

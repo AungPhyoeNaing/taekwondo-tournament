@@ -3,9 +3,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Player } from '@/types/player';
-import { BracketData } from '@/types/bracket';
+import { BracketData, DrawMode } from '@/types/bracket';
 import { DEMO_PLAYERS, getBeltStyle } from '@/lib/taekwondo';
-import { generateSingleEliminationBracket } from '@/lib/bracket';
+import {
+  generateSingleEliminationBracket,
+  groupPlayersByDivision,
+  getSortedDivisionKeys
+} from '@/lib/bracket';
+import { supabase } from '@/lib/supabase';
 import { Language, translations } from '@/lib/translations';
 import {
   Printer,
@@ -22,15 +27,21 @@ import {
 } from 'lucide-react';
 
 export default function ResultsPage() {
+  const [players, setPlayers] = useState<Player[]>([]);
   const [bracket, setBracket] = useState<BracketData | null>(null);
   const [loading, setLoading] = useState(true);
   const [lang, setLang] = useState<Language>('my');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDivision, setSelectedDivision] = useState<string>('');
+  const [drawMode, setDrawMode] = useState<DrawMode>('weight-matched');
 
   const t = translations[lang];
 
-  // Initialize theme, language & bracket from localStorage
+  const divisionGroups = useMemo(() => groupPlayersByDivision(players), [players]);
+  const divisionKeys = useMemo(() => getSortedDivisionKeys(divisionGroups), [divisionGroups]);
+
+  // Initialize theme & language from localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem('tkd_theme') as 'light' | 'dark' | null;
     if (savedTheme === 'dark') {
@@ -45,48 +56,96 @@ export default function ResultsPage() {
     if (savedLang) {
       setLang(savedLang);
     }
+  }, []);
 
-    // Load active bracket
-    const savedBracket = localStorage.getItem('tkd_active_bracket');
-    if (savedBracket) {
+  // Fetch live players & initialize bracket
+  useEffect(() => {
+    let isMounted = true;
+    async function loadData() {
+      setLoading(true);
       try {
-        const parsed = JSON.parse(savedBracket);
-        if (parsed && parsed.rounds && parsed.rounds.length > 0) {
-          setBracket(parsed);
-          setLoading(false);
-          return;
+        let playerList: Player[] = [];
+        const { data, error } = await supabase.from('players').select('*');
+        if (!error && data && data.length > 0) {
+          playerList = data as Player[];
+        } else {
+          const savedLocal = localStorage.getItem('tkd_local_players');
+          if (savedLocal) {
+            try {
+              playerList = JSON.parse(savedLocal);
+            } catch {
+              playerList = DEMO_PLAYERS;
+            }
+          } else {
+            playerList = DEMO_PLAYERS;
+          }
         }
-      } catch {
-        // ignore
+
+        if (!isMounted) return;
+        setPlayers(playerList);
+
+        const groups = groupPlayersByDivision(playerList);
+        const keys = getSortedDivisionKeys(groups);
+
+        // Check if a bracket was previously active
+        const savedBracket = localStorage.getItem('tkd_active_bracket');
+        if (savedBracket) {
+          try {
+            const parsed = JSON.parse(savedBracket);
+            if (parsed && parsed.rounds && parsed.rounds.length > 0) {
+              setBracket(parsed);
+              setSelectedDivision(parsed.divisionName);
+              setLoading(false);
+              return;
+            }
+          } catch {
+            // ignore
+          }
+        }
+
+        // Default to the first division with >= 2 competitors (e.g. Senior Female)
+        const defaultDiv = keys.find((k) => (groups[k]?.length || 0) >= 2) || (keys.length > 0 ? keys[0] : 'ALL');
+        setSelectedDivision(defaultDiv);
+        const divPlayers = defaultDiv === 'ALL' ? playerList : groups[defaultDiv] || playerList;
+        if (divPlayers.length >= 2) {
+          const b = generateSingleEliminationBracket(divPlayers, defaultDiv, 'weight-matched', lang);
+          setBracket(b);
+          localStorage.setItem('tkd_active_bracket', JSON.stringify(b));
+        }
+      } catch (err) {
+        console.error('Error loading pairings:', err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     }
 
-    // Fallback: load local players or demo players to generate bracket
-    let playersPool: Player[] = DEMO_PLAYERS;
-    const savedPlayers = localStorage.getItem('tkd_local_players');
-    if (savedPlayers) {
-      try {
-        const parsed = JSON.parse(savedPlayers);
-        if (Array.isArray(parsed) && parsed.length >= 2) {
-          playersPool = parsed;
-        }
-      } catch {
-        // ignore
-      }
-    }
-
-    if (playersPool.length >= 2) {
-      const generated = generateSingleEliminationBracket(
-        playersPool,
-        lang === 'my' ? 'အားလုံးပါဝင်သော အဆင့် (Open Tournament)' : 'Open Tournament Division',
-        'random',
-        savedLang || 'my'
-      );
-      setBracket(generated);
-      localStorage.setItem('tkd_active_bracket', JSON.stringify(generated));
-    }
-    setLoading(false);
+    loadData();
+    return () => {
+      isMounted = false;
+    };
   }, [lang]);
+
+  const handleSelectDivision = (newDiv: string) => {
+    setSelectedDivision(newDiv);
+    const divPlayers = newDiv === 'ALL' ? players : divisionGroups[newDiv] || [];
+    if (divPlayers.length >= 2) {
+      const b = generateSingleEliminationBracket(divPlayers, newDiv, drawMode, lang);
+      setBracket(b);
+      localStorage.setItem('tkd_active_bracket', JSON.stringify(b));
+    } else {
+      setBracket(null);
+    }
+  };
+
+  const handleSelectDrawMode = (newMode: DrawMode) => {
+    setDrawMode(newMode);
+    const divPlayers = selectedDivision === 'ALL' ? players : divisionGroups[selectedDivision] || [];
+    if (divPlayers.length >= 2) {
+      const b = generateSingleEliminationBracket(divPlayers, selectedDivision, newMode, lang);
+      setBracket(b);
+      localStorage.setItem('tkd_active_bracket', JSON.stringify(b));
+    }
+  };
 
   // Handle Theme Toggle
   const handleToggleTheme = () => {
@@ -318,6 +377,56 @@ export default function ResultsPage() {
           <p className="text-xs text-slate-600">
             Official Round 1 Initial Draw Sheet (Single Elimination with Byes) • Date: {new Date().toLocaleDateString()}
           </p>
+        </div>
+
+        {/* Division Selector & Draw Controls */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 print:hidden">
+          <div className="flex-1 max-w-md space-y-1">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+              {t.selectDivision}
+            </label>
+            <select
+              value={selectedDivision}
+              onChange={(e) => handleSelectDivision(e.target.value)}
+              className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
+            >
+              <optgroup label={lang === 'my' ? '🥋 အဓိက အသက်နှင့် ကျား/မ အုပ်စုများ' : '🥋 Age & Gender Divisions'}>
+                {divisionKeys.filter((k) => !k.includes(' - ')).map((key) => (
+                  <option key={key} value={key}>
+                    🥋 {key} ({divisionGroups[key]?.length || 0} {lang === 'my' ? 'ဦး' : 'athletes'})
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label={lang === 'my' ? '⚖️ သီးသန့် ဝိတ်တန်းများ' : '⚖️ Specific Weight Classes'}>
+                {divisionKeys.filter((k) => k.includes(' - ')).map((key) => (
+                  <option key={key} value={key}>
+                    ⚖️ {key} ({divisionGroups[key]?.length || 0} {lang === 'my' ? 'ဦး' : 'athletes'})
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label={lang === 'my' ? '🏆 ကစားသမား အားလုံး' : '🏆 Open Tournament'}>
+                <option value="ALL">
+                  🏆 {t.allAthletes} ({players.length} {lang === 'my' ? 'ဦး' : 'athletes'})
+                </option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div className="w-full md:w-64 space-y-1">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+              {t.drawMode}
+            </label>
+            <select
+              value={drawMode}
+              onChange={(e) => handleSelectDrawMode(e.target.value as DrawMode)}
+              className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
+            >
+              <option value="weight-matched">⚖️ {t.drawWeightMatched}</option>
+              <option value="random">🎲 {t.drawRandom}</option>
+              <option value="seeded">🥋 {t.drawSeeded}</option>
+              <option value="club-separated">🛡️ {t.drawClubSeparated}</option>
+            </select>
+          </div>
         </div>
 
         {/* Division Summary & Initial Pairing Metrics Card */}

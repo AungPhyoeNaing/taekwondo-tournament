@@ -197,12 +197,16 @@ export function getTaekwondoDivision(weightKg: number, gender: Gender | string, 
     }
   }
 
-  return {
-    category: 'Child',
-    divisionName: 'Youth Division',
-    weightClass: `${weightKg} kg`,
-    standardText: `Youth Category (${weightKg} kg)`
-  };
+  if (weightKg <= 21) return { category: 'Child', divisionName: 'Finweight', weightClass: '-21 kg', standardText: 'Child -21kg (Finweight)' };
+  if (weightKg <= 24) return { category: 'Child', divisionName: 'Flyweight', weightClass: '-24 kg', standardText: 'Child -24kg (Flyweight)' };
+  if (weightKg <= 27) return { category: 'Child', divisionName: 'Bantamweight', weightClass: '-27 kg', standardText: 'Child -27kg (Bantamweight)' };
+  if (weightKg <= 30) return { category: 'Child', divisionName: 'Featherweight', weightClass: '-30 kg', standardText: 'Child -30kg (Featherweight)' };
+  if (weightKg <= 34) return { category: 'Child', divisionName: 'Lightweight', weightClass: '-34 kg', standardText: 'Child -34kg (Lightweight)' };
+  if (weightKg <= 38) return { category: 'Child', divisionName: 'Welterweight', weightClass: '-38 kg', standardText: 'Child -38kg (Welterweight)' };
+  if (weightKg <= 42) return { category: 'Child', divisionName: 'Light Middle', weightClass: '-42 kg', standardText: 'Child -42kg (Light Middle)' };
+  if (weightKg <= 46) return { category: 'Child', divisionName: 'Middleweight', weightClass: '-46 kg', standardText: 'Child -46kg (Middleweight)' };
+  if (weightKg <= 50) return { category: 'Child', divisionName: 'Light Heavy', weightClass: '-50 kg', standardText: 'Child -50kg (Light Heavy)' };
+  return { category: 'Child', divisionName: 'Heavyweight', weightClass: '+50 kg', standardText: 'Child +50kg (Heavyweight)' };
 }
 
 export const DEMO_PLAYERS: Player[] = [

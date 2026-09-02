@@ -142,6 +142,7 @@ export interface Translations {
   drawRandom: string;
   drawSeeded: string;
   drawClubSeparated: string;
+  drawWeightMatched: string;
   generateDraw: string;
   reShuffle: string;
   resetBracket: string;
@@ -317,6 +318,7 @@ export const translations: Record<Language, Translations> = {
     drawRandom: 'Random Draw (Lottery)',
     drawSeeded: 'Seeded Draw (Belt / Dan)',
     drawClubSeparated: 'Club Protection (Avoid Teammates)',
+    drawWeightMatched: 'Fair Weight Match (Closest Weights)',
     generateDraw: 'Generate Bracket',
     reShuffle: 'Shuffle Draw',
     resetBracket: 'Reset Matches',
@@ -490,6 +492,7 @@ export const translations: Record<Language, Translations> = {
     drawRandom: 'ကျပန်း မဲနှိုက်စနစ် (Lottery Draw)',
     drawSeeded: 'ခါးပတ်အဆင့်လိုက် မျိုးစေ့ချခြင်း (Seeded Draw)',
     drawClubSeparated: 'ကလပ်အချင်းချင်း မတိုက်စေရန် ခွဲထုတ်ခြင်း (Club Protection)',
+    drawWeightMatched: 'ဝိတ်အနီးစပ်ဆုံး ယှဉ်ပြိုင်မှု (Fair Weight Match)',
     generateDraw: 'တွဲဆိုင်း မဲခွဲထုတ်မည်',
     reShuffle: 'မဲပြန်နှိုက်မည်',
     resetBracket: 'ပွဲစဉ်များ ပြန်စမည်',
